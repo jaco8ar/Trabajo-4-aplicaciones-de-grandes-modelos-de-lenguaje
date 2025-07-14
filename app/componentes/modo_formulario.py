@@ -1,9 +1,15 @@
 import streamlit as st
 from creador_de_historias.prompts import construir_prompt
 from creador_de_historias.generation import generar_historia
+from componentes.formularios_genero import funciones_campos_genero
+
 
 def modo_formulario():
     st.markdown("Completa los parámetros para generar tu historia:")
+    genero = st.selectbox(
+        "📚 Género", 
+        ["Fantasía", "Misterio", "Romance", "Terror", "Ciencia ficción", "Comedia", "Aventura"]
+    )
 
     with st.form("formulario_historia"):
         col1, col2 = st.columns(2)
@@ -17,11 +23,14 @@ def modo_formulario():
         with col2:
             escenario = st.text_input("🌍 Ubicación / Época", "castillo encantado en el bosque")
             atmosfera = st.selectbox("🎨 Atmósfera", ["oscura", "alegre", "misteriosa", "épica"])
-            genero = st.selectbox("📚 Género", ["fantasía", "misterio", "comedia", "aventura", "terror", "romance"])
             conflicto = st.text_area("⚔️ Tipo de conflicto", "escapar de un hechizo peligroso")
 
         tono = st.selectbox("🎵 Tono", ["humorístico", "dramático", "oscuro", "caprichoso"])
         longitud = st.selectbox("📏 Longitud", ["corta", "mediana", "larga"])
+
+        # Usamos función correspondiente al género
+        campos_func = funciones_campos_genero.get(genero)
+        campos_genero = campos_func() if campos_func else {}
 
         with st.expander("🧩 Agregar detalles adicionales"):
             detalles_adicionales = st.text_area(
@@ -45,11 +54,13 @@ def modo_formulario():
             "longitud": longitud,
             "detalles_adicionales": detalles_adicionales
         }
+        data.update(campos_genero)
 
         with st.spinner("🪄 Generando historia..."):
             try:
                 prompt = construir_prompt(data)
-                historia = generar_historia(prompt)
+                # st.warning(prompt) 
+                historia = generar_historia(prompt, longitud)
                 st.subheader("📖 Historia Generada")
                 st.write(historia)
             except Exception as e:
