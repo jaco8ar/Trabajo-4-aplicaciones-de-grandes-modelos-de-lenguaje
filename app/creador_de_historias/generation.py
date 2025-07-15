@@ -1,9 +1,8 @@
-# generation.py
-
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import streamlit as st
+import requests
 
 load_dotenv()
 
@@ -12,11 +11,11 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-# Asigna tokens según la longitud deseada
-TOKEN_MAP = {
-    "corta": 550,     # 400 palabras aprox
-    "mediana": 800,   # 600 palabras aprox
-    "larga": 1100     # 800 palabras aprox
+# Asigna tokens según la longitud deseada (tokens, palabras)
+LENGTH_MAP = {
+    "corta":    (550,400),    
+    "mediana":  (800, 600), 
+    "larga":    (1100, 800)   
 }
 
 def generar_historia(prompt: str, longitud: str = "mediana") -> str:
@@ -32,13 +31,13 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
         str: Historia .
     """
     try:
-        max_tokens = TOKEN_MAP.get(longitud, 650)
+        max_tokens, max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
 
         completion = client.chat.completions.create(
-            model="deepseek/deepseek-chat",
+            model="deepseek/deepseek-chat-v3-0324:free",
             messages=[
                 {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": f"{prompt}\nLa historia no debe tener más de {max_palabras + 100}, no digas cuantas palabras o caracteres tiene la historia"}
             ],
             temperature=0.8,
             max_tokens=max_tokens,
@@ -55,7 +54,7 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
                 f"La historia generada con el siguiente prompt fue muy larga para el espacio permitido. "
                 f"{prompt}"
                 f"Por favor, reescríbela manteniendo su esencia, pero con una trama más acelerada "
-                f"que encaje en aproximadamente {max_tokens} tokens."
+                f"que encaje en aproximadamente {max_palabras} palabras"
 
             )
 
@@ -77,27 +76,35 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
 
     except Exception as e:
         raise RuntimeError(f"❌ Error al generar historia con OpenRouter: {e}")
+    except requests.exceptions.ConnectionError:
+        raise RuntimeError("Error de conexión al refinar historia. Intenta nuevamente más tarde.")
 
-
-def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict) -> str:
+def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict, modo: str = "formulario") -> str:
     """
-    Refina una historia existente con base en una sugerencia del usuario.
-    
+    Refina una historia generada previamente con base en una sugerencia del usuario.
+
     Parámetros:
-        historia_actual (str): La historia original generada.
-        sugerencia (str): Cambios o recomendaciones que el usuario desea aplicar.
+        historia_actual (str): Historia original generada.
+        sugerencia (str): Recomendación o ajuste deseado.
+        datos_entrada (dict): Datos que dieron origen a la historia.
+        modo (str): "formulario" o "texto_libre", define cómo construir el contexto.
 
     Retorna:
         str: Historia modificada.
     """
-    contexto = construir_contexto(datos_entrada)
+    if modo == "formulario":
+        contexto = construir_contexto(datos_entrada)
+    else:  # modo texto libre
+        contexto = f"""El usuario inicialmente describió la historia de esta manera:
+            \"\"\"{datos_entrada.get('descripcion_libre', '')}\"\"\"
+            Ten esto presente al hacer modificaciones, ya que esta fue la base de la historia."""
 
     try:
         completion = client.chat.completions.create(
             model="deepseek/deepseek-chat",
             messages=[
                 {"role": "system", "content": "Eres un narrador experto en editar y mejorar historias manteniendo coherencia, estilo y estructura."},
-                {"role": "user", "content": contexto},
+                {"role": "user", "content": f"{contexto}"},
                 {"role": "assistant", "content": historia_actual},
                 {"role": "user", "content": f"Por favor, modifica la historia anterior siguiendo esta sugerencia:\n{sugerencia}"}
             ],
@@ -108,10 +115,23 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict)
 
         return completion.choices[0].message.content.strip()
 
+    except requests.exceptions.ConnectionError:
+        raise RuntimeError("Error de conexión al refinar historia. Intenta nuevamente más tarde.")
     except Exception as e:
-        raise RuntimeError(f"❌ Error al refinar historia: {e}")
+        raise RuntimeError(f"Error al refinar historia: {e}")
+
     
 def construir_contexto(datos_entrada: dict) -> str:
+    """
+    Utiliza los datos obtenidos del formulario para ser añadidos como parte del prompt para construir la historia.
+
+    Parámetros:
+        datos_entrada (dict): datos del formulario.
+
+    Retorna:
+        str: contexto para el modelo.
+    """
+
     contexto = "Esta es la información base de la historia:\n"
     for clave, valor in datos_entrada.items():
         clave_limpia = clave.replace('_', ' ').capitalize()
