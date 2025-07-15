@@ -20,6 +20,17 @@ TOKEN_MAP = {
 }
 
 def generar_historia(prompt: str, longitud: str = "mediana") -> str:
+    """
+    Genera una historia con un LLM basada en un prompt. 
+    Si se supera el limite de longitud de la respuesta se le indica al LLM que genere una versión más corta de la historia
+    
+    Parámetros:
+        prompt (str): prompt escrito directamente por el usuario o construido mediante formulario.
+        longitud (str): Longitud de la historia deseada por el usuario
+
+    Retorna:
+        str: Historia .
+    """
     try:
         max_tokens = TOKEN_MAP.get(longitud, 650)
 
@@ -39,11 +50,13 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
 
         # Si se cortó por límite, intenta una nueva versión más resumida
         if finish_reason == "length":
-            st.warning("La respuesta se cortó por ser demasiado larga")
+            st.warning("La respuesta se cortó por ser demasiado larga") ## quitar
             retry_prompt = (
-                f"La historia anterior fue demasiado larga para el espacio permitido. "
+                f"La historia generada con el siguiente prompt fue muy larga para el espacio permitido. "
+                f"{prompt}"
                 f"Por favor, reescríbela manteniendo su esencia, pero con una trama más acelerada "
                 f"que encaje en aproximadamente {max_tokens} tokens."
+
             )
 
             retry_completion = client.chat.completions.create(

@@ -29,6 +29,8 @@ def modo_formulario():
         data["longitud"] = st.selectbox("📏 Longitud", ["corta", "mediana", "larga"])
         data["genero"] = genero
 
+        st.markdown(f"Completa estas preguntas para que tu historia de {genero.lower()} sea mejor")
+
         # Campos específicos por género
         campos_func = funciones_campos_genero.get(genero)
         if campos_func:

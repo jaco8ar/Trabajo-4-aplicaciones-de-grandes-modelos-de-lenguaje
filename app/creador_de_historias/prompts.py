@@ -2,7 +2,7 @@
 
 def prompt_extra_fantasia(data):
     return f"""
-    Añade elementos mágicos y criaturas fantásticas. La historia debe desarrollarse en un mundo imaginario donde {data.get('personaje')} interactúa con {data.get('relacion', 'seres místicos')}.
+    Añade elementos mágicos y criaturas fantásticas. La historia debe desarrollarse en un mundo imaginario donde {data.get('raza', "humano")} interactúa con {data.get('relacion', 'seres místicos')}.
     """
 
 def prompt_extra_misterio(data):
