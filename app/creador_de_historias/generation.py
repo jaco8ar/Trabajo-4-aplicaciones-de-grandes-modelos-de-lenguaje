@@ -3,6 +3,7 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
@@ -38,6 +39,7 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
 
         # Si se cortó por límite, intenta una nueva versión más resumida
         if finish_reason == "length":
+            st.warning("La respuesta se cortó por ser demasiado larga")
             retry_prompt = (
                 f"La historia anterior fue demasiado larga para el espacio permitido. "
                 f"Por favor, reescríbela manteniendo su esencia, pero con una trama más acelerada "
@@ -62,3 +64,45 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
 
     except Exception as e:
         raise RuntimeError(f"❌ Error al generar historia con OpenRouter: {e}")
+
+
+def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict) -> str:
+    """
+    Refina una historia existente con base en una sugerencia del usuario.
+    
+    Parámetros:
+        historia_actual (str): La historia original generada.
+        sugerencia (str): Cambios o recomendaciones que el usuario desea aplicar.
+
+    Retorna:
+        str: Historia modificada.
+    """
+    contexto = construir_contexto(datos_entrada)
+
+    try:
+        completion = client.chat.completions.create(
+            model="deepseek/deepseek-chat",
+            messages=[
+                {"role": "system", "content": "Eres un narrador experto en editar y mejorar historias manteniendo coherencia, estilo y estructura."},
+                {"role": "user", "content": contexto},
+                {"role": "assistant", "content": historia_actual},
+                {"role": "user", "content": f"Por favor, modifica la historia anterior siguiendo esta sugerencia:\n{sugerencia}"}
+            ],
+            temperature=0.7,
+            max_tokens=800,
+            top_p=1.0
+        )
+
+        return completion.choices[0].message.content.strip()
+
+    except Exception as e:
+        raise RuntimeError(f"❌ Error al refinar historia: {e}")
+    
+def construir_contexto(datos_entrada: dict) -> str:
+    contexto = "Esta es la información base de la historia:\n"
+    for clave, valor in datos_entrada.items():
+        clave_limpia = clave.replace('_', ' ').capitalize()
+        if isinstance(valor, str) and valor.strip() == "":
+            valor = "No especificado"
+        contexto += f"- {clave_limpia}: {valor}\n"
+    return contexto.strip()
