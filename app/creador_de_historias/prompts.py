@@ -54,17 +54,18 @@ def construir_prompt(data):
 
     prompt_base = f"""
     Escribe una historia de {data['genero']} con tono {data['tono']}.
-
+    Utiliza estos {prompt_genero} para la arquitectura de la historia de acuerdo al genero elegido.
+    Debe haber cohesión entre {prompt_genero}, {data['escenario']}y {data['atmósfera']}
     Estructura:
     1. Introducción: Presenta al personaje principal, {data['personaje']}, un(a) {data['rol']} con personalidad {data['personalidad']}, en {data['escenario']} con atmósfera {data['atmósfera']}.
     2. Desarrollo: El conflicto central está relacionado con {data['conflicto']}. Describe los desafíos.
     3. Resolución: Explica cómo se resuelve la situación de forma coherente.
 
-    {prompt_genero}
 
     Longitud deseada: {data['longitud']} palabras.
     Asegúrate de mantener coherencia en la personalidad del personaje y estilo narrativo.
     No incluyas los títulos de Introducción, Desarrollo o Resolución en la historia.
+    Los detalles adicionales {data['detalles_adicionales']} son importantes para la historia pero deben ser coherentes y no deben contradecir la estructura ya existente de la misma.
     """.strip()
 
     return prompt_base
