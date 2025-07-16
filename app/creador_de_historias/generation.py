@@ -12,9 +12,9 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-MAX_TOKENS = 200
+MAX_TOKENS = 2000
 
-# Asigna tokens según la longitud deseada (tokens, palabras)
+# Asigna tamaño según la longitud deseada palabras
 LENGTH_MAP = {
     "corta":    400,    
     "mediana":  600, 
@@ -22,11 +22,17 @@ LENGTH_MAP = {
 }
 
 
-
 def generar_historia(prompt: str, longitud: str = "mediana") -> str:
     """
-    Genera una historia y la valida por número de palabras. Si no cumple el rango,
-    intenta corregirla hasta 2 veces.
+    Genera una historia y la valida por número de palabras. 
+    Si la historia no cumple con el rango esperado, intenta ajustarla hasta 2 veces (máx. 3 intentos en total).
+
+    Parámetros:
+        prompt (str): Descripción inicial de la historia.
+        longitud (str): Categoría de longitud: 'corta', 'mediana' o 'larga'.
+
+    Retorna:
+        str: Historia generada con una longitud adecuada.
     """
     max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
     min_palabras = max_palabras - (200 if longitud != "corta" else 100)
@@ -37,7 +43,6 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
     intentos = 0
     while (palabras < min_palabras or palabras > max_palabras) and intentos < 3:
         razon = "muy corta" if palabras < min_palabras else "muy larga"
-        # st.warning(f"La historia es {razon}, intentando ajustarla...")
         historia = corregir_longitud_historia(historia, prompt, max_palabras, razon)
         palabras = contar_palabras(historia)
         intentos += 1
@@ -47,13 +52,16 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
 
 def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, razon: str) -> str:
     """
-    Corrige la longitud de una historia: la resume o la expande.
-    
+    Corrige la longitud de una historia en caso de ser muy corta o muy larga.
+
     Parámetros:
-        historia (str): Historia original.
-        prompt (str): Prompt inicial.
-        max_palabras (int): Límite superior.
-        razon (str): "muy corta" o "muy larga"
+        historia (str): Historia original generada.
+        prompt (str): Prompt original que generó la historia.
+        max_palabras (int): Cantidad máxima deseada de palabras.
+        razon (str): 'muy corta' o 'muy larga' para determinar el tipo de corrección.
+
+    Retorna:
+        str: Historia ajustada.
     """
     if razon == "muy corta":
         instruccion = (
@@ -72,8 +80,7 @@ def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, ra
         model="deepseek/deepseek-chat",
         messages=[
             {"role": "system", "content": "Eres un narrador experto en ajustar la longitud de historias sin perder coherencia ni estilo"
-                                        " y con una excelente memoria para detalles como nombres y los temas de las historias." },
-                                       
+                                          " y con una excelente memoria para detalles como nombres y los temas de las historias."},
             {"role": "user", "content": instruccion},
             {"role": "assistant", "content": historia}
         ],
@@ -84,8 +91,17 @@ def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, ra
 
     return retry_completion.choices[0].message.content.strip()
 
+
 def generar_historia_una_vez(prompt: str) -> str:
-    """Llama una vez al modelo con el prompt original."""
+    """
+    Genera una historia a partir del prompt proporcionado usando el modelo.
+
+    Parámetros:
+        prompt (str): Descripción inicial de la historia.
+
+    Retorna:
+        str: Historia generada por el modelo.
+    """
     completion = client.chat.completions.create(
         model="deepseek/deepseek-chat-v3-0324:free",
         messages=[
@@ -102,22 +118,22 @@ def generar_historia_una_vez(prompt: str) -> str:
 
 def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict, modo: str = "formulario") -> str:
     """
-    Refina una historia generada previamente con base en una sugerencia del usuario.
+    Refina una historia previamente generada, aplicando una sugerencia del usuario.
 
     Parámetros:
-        historia_actual (str): Historia original generada.
-        sugerencia (str): Recomendación o ajuste deseado.
-        datos_entrada (dict): Datos que dieron origen a la historia.
-        modo (str): "formulario" o "texto_libre", define cómo construir el contexto.
+        historia_actual (str): Texto de la historia actual.
+        sugerencia (str): Cambio que el usuario desea aplicar.
+        datos_entrada (dict): Información original que generó la historia.
+        modo (str): "formulario" o "texto_libre" para definir cómo construir el contexto.
 
     Retorna:
-        str: Historia modificada.
+        str: Historia refinada.
     """
     if modo == "formulario":
         contexto = construir_contexto(datos_entrada)
     else:  # modo texto libre
         contexto = f"""El usuario inicialmente describió la historia de esta manera:
-            \"\"\"{datos_entrada.get('descripcion_libre', '')}\"\"\"
+            \"\"\"{datos_entrada.get('descripcion_libre', '')}\"\"\" 
             Ten esto presente al hacer modificaciones, ya que esta fue la base de la historia."""
 
     try:
@@ -142,41 +158,36 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
         raise RuntimeError(f"Error al refinar historia: {e}")
 
 
-
-
 def contar_palabras(texto: str) -> int:
     """
     Cuenta las palabras en un texto después de limpiarlo:
-    - Elimina puntuación (.,!?-)
-    - Elimina múltiples espacios
-    - Mantiene letras con tildes y ñ
-    
+    - Elimina signos de puntuación como comas, puntos, guiones, etc.
+    - Elimina múltiples espacios y espacios al inicio/final.
+    - Preserva letras con tildes y caracteres especiales como 'ñ'.
+
     Parámetros:
-        texto (str): Texto a analizar.
+        texto (str): Texto del cual se quieren contar las palabras.
 
     Retorna:
-        int: Número de palabras limpias en el texto.
+        int: Número total de palabras limpias.
     """
-    
     texto_limpio = re.sub(r"[.,!?;:\-\"\'()\[\]{}]", "", texto)
-    
     texto_limpio = re.sub(r"\s+", " ", texto_limpio).strip()
-    
     palabras = texto_limpio.split()
     return len(palabras)
 
-    
+
 def construir_contexto(datos_entrada: dict) -> str:
     """
-    Utiliza los datos obtenidos del formulario para ser añadidos como parte del prompt para construir la historia.
+    Construye un contexto en formato de lista con los datos del formulario,
+    para ser usado como parte del prompt que genera o refina la historia.
 
     Parámetros:
-        datos_entrada (dict): datos del formulario.
+        datos_entrada (dict): Diccionario con los datos del formulario.
 
     Retorna:
-        str: contexto para el modelo.
+        str: Texto contextual con formato limpio.
     """
-
     contexto = "Esta es la información base de la historia:\n"
     for clave, valor in datos_entrada.items():
         clave_limpia = clave.replace('_', ' ').capitalize()
