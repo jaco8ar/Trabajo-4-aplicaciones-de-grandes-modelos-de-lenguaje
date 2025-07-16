@@ -12,11 +12,13 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
+MAX_TOKENS = 200
+
 # Asigna tokens según la longitud deseada (tokens, palabras)
 LENGTH_MAP = {
-    "corta":    (550,400),    
-    "mediana":  (800, 600), 
-    "larga":    (1100, 800)   
+    "corta":    400,    
+    "mediana":  600, 
+    "larga":    800   
 }
 
 
@@ -26,10 +28,10 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
     Genera una historia y la valida por número de palabras. Si no cumple el rango,
     intenta corregirla hasta 2 veces.
     """
-    max_tokens, max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
+    max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
     min_palabras = max_palabras - (200 if longitud != "corta" else 100)
 
-    historia = generar_historia_una_vez(prompt, max_tokens)
+    historia = generar_historia_una_vez(prompt)
     palabras = contar_palabras(historia)
 
     intentos = 0
@@ -76,13 +78,13 @@ def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, ra
             {"role": "assistant", "content": historia}
         ],
         temperature=0.8,
-        max_tokens=2000,
+        max_tokens=MAX_TOKENS,
         top_p=1.0
     )
 
     return retry_completion.choices[0].message.content.strip()
 
-def generar_historia_una_vez(prompt: str, max_tokens: int) -> str:
+def generar_historia_una_vez(prompt: str) -> str:
     """Llama una vez al modelo con el prompt original."""
     completion = client.chat.completions.create(
         model="deepseek/deepseek-chat-v3-0324:free",
@@ -91,7 +93,7 @@ def generar_historia_una_vez(prompt: str, max_tokens: int) -> str:
             {"role": "user", "content": prompt}
         ],
         temperature=0.8,
-        max_tokens=2000,
+        max_tokens=MAX_TOKENS,
         top_p=1.0
     )
 
@@ -128,7 +130,7 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
                 {"role": "user", "content": f"Por favor, modifica la historia anterior siguiendo esta sugerencia:\n{sugerencia}"}
             ],
             temperature=0.7,
-            max_tokens=800,
+            max_tokens=MAX_TOKENS,
             top_p=1.0
         )
 
