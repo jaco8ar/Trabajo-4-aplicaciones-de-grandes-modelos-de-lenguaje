@@ -5,16 +5,16 @@ from componentes.formularios_genero import funciones_campos_genero
 from creador_de_historias.validator import evaluar_apto_para_edad
 
 dict_conf_inicial = {
-        "personaje": "Luna",
+        "personaje": "Anaís",
         "rol": "héroe",
-        "personalidad": "curiosa, valiente, impulsiva",
-        "relacion": "su gato parlante",
-        "escenario": "castillo encantado en el bosque",
-        "atmósfera": "misteriosa",
-        "conflicto": "escapar de un hechizo peligroso",
-        "edad": "infantil",
+        "personalidad": "inteligente, gruñona, es una niña",
+        "relacion": "sus hermanos Gumball y Darwin",
+        "escenario": "Elmore",
+        "atmósfera": "épica",
+        "conflicto": "El evento más aleatorio le acaba de suceder a tus hermanos y ahora debes arreglar su desastre",
+        "edad": "adolescente",
         "tono": "humorístico",
-        "longitud": "corta",
+        "longitud": "mediana",
         "detalles_adicionales": ""
     }
 
