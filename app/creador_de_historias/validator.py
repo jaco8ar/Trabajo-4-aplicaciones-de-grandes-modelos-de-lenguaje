@@ -2,14 +2,11 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from creador_de_historias.generation import CLIENT
 import json
 
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-)
 
 def validar_entrada_libre(texto: str, intentos_max: int = 2):
     """
@@ -61,7 +58,7 @@ def validar_entrada_libre(texto: str, intentos_max: int = 2):
 
     for intento in range(1, intentos_max + 1):
         try:
-            response = client.chat.completions.create(
+            response = CLIENT.chat.completions.create(
                 model="deepseek/deepseek-chat",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
@@ -135,7 +132,7 @@ def evaluar_apto_para_edad(historia: str, rango_edad: str) -> tuple[bool, str]:
     """
 
     try:
-        response = client.chat.completions.create(
+        response = CLIENT.chat.completions.create(
             model="deepseek/deepseek-chat",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.0,

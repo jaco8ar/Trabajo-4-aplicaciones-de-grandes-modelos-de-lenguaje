@@ -1,15 +1,16 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from creador_de_historias.utils import contar_palabras, construir_contexto
 import streamlit as st
 import requests
-import re
+
 
 load_dotenv()
 
-client = OpenAI(
+CLIENT = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_key=st.secrets("OPENROUTER_API_KEY"),
 )
 
 MAX_TOKENS = 2000
@@ -76,7 +77,7 @@ def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, ra
         )
     instruccion += "Solo debes decir el titulo de la historia y la historia nada de comentarios extra o entre parentesis."
     
-    retry_completion = client.chat.completions.create(
+    retry_completion = CLIENT.chat.completions.create(
         model="deepseek/deepseek-chat",
         messages=[
             {"role": "system", "content": "Eres un narrador experto en ajustar la longitud de historias sin perder coherencia ni estilo"
@@ -102,7 +103,7 @@ def generar_historia_una_vez(prompt: str) -> str:
     Retorna:
         str: Historia generada por el modelo.
     """
-    completion = client.chat.completions.create(
+    completion = CLIENT.chat.completions.create(
         model="deepseek/deepseek-chat-v3-0324:free",
         messages=[
             {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
@@ -137,7 +138,7 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
             Ten esto presente al hacer modificaciones, ya que esta fue la base de la historia."""
 
     try:
-        completion = client.chat.completions.create(
+        completion = CLIENT.chat.completions.create(
             model="deepseek/deepseek-chat",
             messages=[
                 {"role": "system", "content": "Eres un narrador experto en editar y mejorar historias manteniendo coherencia, estilo y estructura."},
@@ -158,40 +159,3 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
         raise RuntimeError(f"Error al refinar historia: {e}")
 
 
-def contar_palabras(texto: str) -> int:
-    """
-    Cuenta las palabras en un texto después de limpiarlo:
-    - Elimina signos de puntuación como comas, puntos, guiones, etc.
-    - Elimina múltiples espacios y espacios al inicio/final.
-    - Preserva letras con tildes y caracteres especiales como 'ñ'.
-
-    Parámetros:
-        texto (str): Texto del cual se quieren contar las palabras.
-
-    Retorna:
-        int: Número total de palabras limpias.
-    """
-    texto_limpio = re.sub(r"[.,!?;:\-\"\'()\[\]{}]", "", texto)
-    texto_limpio = re.sub(r"\s+", " ", texto_limpio).strip()
-    palabras = texto_limpio.split()
-    return len(palabras)
-
-
-def construir_contexto(datos_entrada: dict) -> str:
-    """
-    Construye un contexto en formato de lista con los datos del formulario,
-    para ser usado como parte del prompt que genera o refina la historia.
-
-    Parámetros:
-        datos_entrada (dict): Diccionario con los datos del formulario.
-
-    Retorna:
-        str: Texto contextual con formato limpio.
-    """
-    contexto = "Esta es la información base de la historia:\n"
-    for clave, valor in datos_entrada.items():
-        clave_limpia = clave.replace('_', ' ').capitalize()
-        if isinstance(valor, str) and valor.strip() == "":
-            valor = "No especificado"
-        contexto += f"- {clave_limpia}: {valor}\n"
-    return contexto.strip()
