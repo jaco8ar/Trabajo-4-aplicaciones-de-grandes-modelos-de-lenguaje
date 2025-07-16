@@ -10,6 +10,7 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
 )
+
 def validar_entrada_libre(texto: str, intentos_max: int = 2):
     """
     Valida si un texto dado es una solicitud de historia y extrae los elementos narrativos clave.
@@ -98,3 +99,54 @@ def validar_entrada_libre(texto: str, intentos_max: int = 2):
                 raise RuntimeError(f"❌ Error persistente al validar entrada: {e}")
             continue  # intenta de nuevo
 
+def evaluar_apto_para_edad(historia: str, rango_edad: str) -> tuple[bool, str]:
+    """
+    Evalúa si una historia es apta para un determinado rango de edad usando un modelo LLM.
+
+    Parámetros:
+        historia (str): Historia generada previamente.
+        rango_edad (str): Uno de: "infantil", "adolescente", "adulto".
+
+    Retorna:
+        tuple:
+            - bool: True si la historia es apta, False si no.
+            - str: Justificación o comentario del modelo.
+    """
+
+    if rango_edad == "adulto":
+        return True, "Sin comentario del modelo"
+    instrucciones = {
+        "infantil": "Evalúa si la historia es apta para niños. Debe estar libre de violencia explícita, lenguaje inapropiado, terror intenso, temas sensibles o ningun tipo de contenido sexual.",
+        "adolescente": "Evalúa si la historia es apta para adolescentes. Puede tener cierto conflicto, pero sin lenguaje ofensivo, contenido sexual explícito ni violencia extrema."
+    }
+
+    prompt = f"""
+    {instrucciones[rango_edad]}
+
+    Analiza esta historia:
+    \"\"\"{historia}\"\"\"
+
+    Responde con el siguiente formato JSON:
+
+    {{
+        "apto": true,
+        "comentario": "Breve justificación del juicio"
+    }}
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="deepseek/deepseek-chat",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=400
+        )
+
+        content = response.choices[0].message.content
+        content = content.replace("```", "").replace("json", "").strip()
+        data = json.loads(content)
+
+        return data.get("apto", False), data.get("comentario", "Sin comentario del modelo")
+
+    except Exception as e:
+        raise RuntimeError(f"Error al evaluar la historia para rango de edad: {e}")

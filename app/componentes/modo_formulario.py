@@ -2,7 +2,7 @@ import streamlit as st
 from creador_de_historias.prompts import construir_prompt
 from creador_de_historias.generation import generar_historia, refinar_historia
 from componentes.formularios_genero import funciones_campos_genero
-
+from creador_de_historias.validator import evaluar_apto_para_edad
 
 dict_conf_inicial = {
         "personaje": "Luna",
@@ -12,6 +12,7 @@ dict_conf_inicial = {
         "escenario": "castillo encantado en el bosque",
         "atmósfera": "misteriosa",
         "conflicto": "escapar de un hechizo peligroso",
+        "edad": "infantil",
         "tono": "humorístico",
         "longitud": "corta",
         "detalles_adicionales": ""
@@ -112,6 +113,10 @@ def modo_formulario():
             try:
                 prompt = construir_prompt(data)
                 historia = generar_historia(prompt, data["longitud"])
+                apta, comentario = evaluar_apto_para_edad(historia, data["edad"])
+                if not apta:
+                    st.warning(f"La historia podría no ser apropiada para {data['rango_edad']}: {comentario}")
+
                 st.session_state["historia_generada"] = historia
                 st.subheader("📖 Historia Generada")
                 st.write(historia)
@@ -172,6 +177,12 @@ def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> 
                 "⚔️ Tipo de conflicto", 
                 value=valores_base.get("conflicto", "escapar de un hechizo peligroso")
             )
+            data["edad"] = st.selectbox(
+                "👶 Edad del público", 
+                ["infantil", "adolescente", "adulto"],
+                index=["infantil", "adolescente", "adulto"].index(valores_base.get("edad", "infantil"))
+            )
+            
 
         data["tono"] = st.selectbox(
             "🎵 Tono", 

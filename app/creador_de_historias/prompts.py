@@ -68,4 +68,13 @@ def construir_prompt(data):
     Los detalles adicionales {data['detalles_adicionales']} son importantes para la historia pero deben ser coherentes y no deben contradecir la estructura ya existente de la misma.
     """.strip()
 
-    return prompt_base
+    edad_prompt = ""
+    if data["edad"] == "infantil":
+        edad_prompt = "Asegúrate de que la historia sea completamente apta para niños (sin violencia explícita, lenguaje inapropiado o temas sensibles)."
+    elif data["edad"] == "adolescente":
+        edad_prompt = "Asegúrate de que la historia sea apta para adolescentes, evitando contenido sexual, violencia extrema o lenguaje ofensivo."
+    elif data["edad"] == "adulto":
+        edad_prompt = "No necesitas aplicar restricciones especiales de contenido."
+
+
+    return prompt_base + edad_prompt

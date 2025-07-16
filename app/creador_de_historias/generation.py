@@ -3,6 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import streamlit as st
 import requests
+import re
 
 load_dotenv()
 
@@ -18,69 +19,84 @@ LENGTH_MAP = {
     "larga":    (1100, 800)   
 }
 
+
+
 def generar_historia(prompt: str, longitud: str = "mediana") -> str:
     """
-    Genera una historia con un LLM basada en un prompt. 
-    Si se supera el limite de longitud de la respuesta se le indica al LLM que genere una versión más corta de la historia
+    Genera una historia y la valida por número de palabras. Si no cumple el rango,
+    intenta corregirla hasta 2 veces.
+    """
+    max_tokens, max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
+    min_palabras = max_palabras - (200 if longitud != "corta" else 100)
+
+    historia = generar_historia_una_vez(prompt, max_tokens)
+    palabras = contar_palabras(historia)
+
+    intentos = 0
+    while (palabras < min_palabras or palabras > max_palabras) and intentos < 3:
+        razon = "muy corta" if palabras < min_palabras else "muy larga"
+        # st.warning(f"La historia es {razon}, intentando ajustarla...")
+        historia = corregir_longitud_historia(historia, prompt, max_palabras, razon)
+        palabras = contar_palabras(historia)
+        intentos += 1
+
+    return historia
+
+
+def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, razon: str) -> str:
+    """
+    Corrige la longitud de una historia: la resume o la expande.
     
     Parámetros:
-        prompt (str): prompt escrito directamente por el usuario o construido mediante formulario.
-        longitud (str): Longitud de la historia deseada por el usuario
-
-    Retorna:
-        str: Historia .
+        historia (str): Historia original.
+        prompt (str): Prompt inicial.
+        max_palabras (int): Límite superior.
+        razon (str): "muy corta" o "muy larga"
     """
-    try:
-        max_tokens, max_palabras = LENGTH_MAP.get(longitud, LENGTH_MAP["mediana"])
-
-        completion = client.chat.completions.create(
-            model="deepseek/deepseek-chat-v3-0324:free",
-            messages=[
-                {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
-                                                {"role": "user", "content": f"{prompt}\n"
-                                                    f"La historia debe tener mínimo {max_palabras - 100} palabras y máximo {max_palabras} palabras, "
-                                                    "no digas cuantas palabras o caracteres tiene la historia"
-                                                    }
-            ],
-            temperature=0.8,
-            max_tokens=max_tokens,
-            top_p=1.0
+    if razon == "muy corta":
+        instruccion = (
+            "La historia anterior es demasiado breve. Reescríbela con una trama más rica, más escenas y profundidad, "
+            "Agregale más detalles al final, a todo el mundo le gusta un buen final"
+            f"sin cambiar su esencia. Apunta a unas {max_palabras} palabras."
         )
+    else:  # muy larga
+        instruccion = (
+            f"La historia anterior es muy extensa. Reescríbela de forma más concisa, resume escenas secundarias y elimina repeticiones, "
+            f"para que encaje en unas {max_palabras} palabras."
+        )
+    instruccion += "Solo debes decir el titulo de la historia y la historia nada de comentarios extra o entre parentesis."
+    
+    retry_completion = client.chat.completions.create(
+        model="deepseek/deepseek-chat",
+        messages=[
+            {"role": "system", "content": "Eres un narrador experto en ajustar la longitud de historias sin perder coherencia ni estilo"
+                                        " y con una excelente memoria para detalles como nombres y los temas de las historias." },
+                                       
+            {"role": "user", "content": instruccion},
+            {"role": "assistant", "content": historia}
+        ],
+        temperature=0.8,
+        max_tokens=2000,
+        top_p=1.0
+    )
 
-        respuesta = completion.choices[0].message.content.strip()
-        finish_reason = completion.choices[0].finish_reason
+    return retry_completion.choices[0].message.content.strip()
 
-        # Si se cortó por límite, intenta una nueva versión más resumida
-        if finish_reason == "length":
-            st.warning("La respuesta se cortó por ser demasiado larga") ## quitar
-            retry_prompt = (
-                f"La historia generada con el siguiente prompt fue muy larga para el espacio permitido. "
-                f"{prompt}"
-                f"Por favor, reescríbela manteniendo su esencia, pero con una trama más acelerada "
-                f"que encaje en aproximadamente {max_palabras} palabras"
+def generar_historia_una_vez(prompt: str, max_tokens: int) -> str:
+    """Llama una vez al modelo con el prompt original."""
+    completion = client.chat.completions.create(
+        model="deepseek/deepseek-chat-v3-0324:free",
+        messages=[
+            {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.8,
+        max_tokens=2000,
+        top_p=1.0
+    )
 
-            )
+    return completion.choices[0].message.content.strip()
 
-            retry_completion = client.chat.completions.create(
-                model="deepseek/deepseek-chat",
-                messages=[
-                    {"role": "system", "content": "Eres un narrador experto en crear versiones más concisas de historias largas sin perder coherencia ni creatividad."},
-                    {"role": "user", "content": retry_prompt},
-                    {"role": "assistant", "content": respuesta}
-                ],
-                temperature=0.8,
-                max_tokens=max_tokens,
-                top_p=1.0
-            )
-
-            return retry_completion.choices[0].message.content.strip()
-
-        return respuesta
-
-    except Exception as e:
-        raise RuntimeError(f"❌ Error al generar historia con OpenRouter: {e}")
-    except requests.exceptions.ConnectionError:
-        raise RuntimeError("Error de conexión al refinar historia. Intenta nuevamente más tarde.")
 
 def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict, modo: str = "formulario") -> str:
     """
@@ -122,6 +138,30 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
         raise RuntimeError("Error de conexión al refinar historia. Intenta nuevamente más tarde.")
     except Exception as e:
         raise RuntimeError(f"Error al refinar historia: {e}")
+
+
+
+
+def contar_palabras(texto: str) -> int:
+    """
+    Cuenta las palabras en un texto después de limpiarlo:
+    - Elimina puntuación (.,!?-)
+    - Elimina múltiples espacios
+    - Mantiene letras con tildes y ñ
+    
+    Parámetros:
+        texto (str): Texto a analizar.
+
+    Retorna:
+        int: Número de palabras limpias en el texto.
+    """
+    
+    texto_limpio = re.sub(r"[.,!?;:\-\"\'()\[\]{}]", "", texto)
+    
+    texto_limpio = re.sub(r"\s+", " ", texto_limpio).strip()
+    
+    palabras = texto_limpio.split()
+    return len(palabras)
 
     
 def construir_contexto(datos_entrada: dict) -> str:
