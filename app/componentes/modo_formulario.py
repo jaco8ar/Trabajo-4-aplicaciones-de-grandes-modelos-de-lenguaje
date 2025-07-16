@@ -4,6 +4,86 @@ from creador_de_historias.generation import generar_historia, refinar_historia
 from componentes.formularios_genero import funciones_campos_genero
 
 
+# Configuraciones por defecto
+CONFIGURACIONES_DEFECTO = {
+    "defecto": {
+        "personaje": "Luna",
+        "rol": "héroe",
+        "personalidad": "curiosa, valiente, impulsiva",
+        "relacion": "su gato parlante",
+        "escenario": "castillo encantado en el bosque",
+        "atmósfera": "misteriosa",
+        "conflicto": "escapar de un hechizo peligroso",
+        "tono": "humorístico",
+        "longitud": "corta",
+        "detalles_adicionales": ""
+    },
+    "favorita": {
+        "personaje": "Luna",
+        "rol": "héroe",
+        "personalidad": "curiosa, valiente, impulsiva",
+        "relacion": "su gato parlante",
+        "escenario": "castillo encantado en el bosque",
+        "atmósfera": "misteriosa",
+        "conflicto": "escapar de un hechizo peligroso",
+        "tono": "humorístico",
+        "longitud": "corta",
+        "detalles_adicionales": ""
+    }
+}
+
+
+def inicializar_configuraciones():
+    """Inicializa las configuraciones en session_state si no existen."""
+    if "configuraciones" not in st.session_state:
+        st.session_state["configuraciones"] = CONFIGURACIONES_DEFECTO.copy()
+
+
+def cargar_configuracion_favorita():
+    """Carga la configuración favorita en session_state para usar en el formulario."""
+    st.session_state["usar_favorita"] = True
+    st.toast("⭐ Configuración favorita cargada", icon="✅")
+
+
+def obtener_valores_formulario(genero: str, usar_favorita: bool = False) -> dict:
+    """
+    Obtiene los valores a usar en el formulario basándose en la configuración seleccionada.
+    
+    Args:
+        genero (str): Género seleccionado
+        usar_favorita (bool): Si usar la configuración favorita
+        
+    Returns:
+        dict: Valores para el formulario
+    """
+    config_tipo = "favorita" if usar_favorita else "defecto"
+    valores = st.session_state["configuraciones"][config_tipo].copy()
+    valores["genero"] = genero
+    return valores
+
+
+def guardar_configuracion_favorita(data: dict):
+    """
+    Guarda la configuración actual como favorita.
+    
+    Args:
+        data (dict): Datos del formulario a guardar
+    """
+    # Solo guardamos los campos comunes (antes de los campos específicos de género)
+    campos_comunes = [
+        "personaje", "rol", "personalidad", "relacion", "escenario", 
+        "atmósfera", "conflicto", "tono", "longitud", "detalles_adicionales"
+    ]
+    
+    nueva_favorita = {}
+    for campo in campos_comunes:
+        if campo in data:
+            nueva_favorita[campo] = data[campo]
+    
+    st.session_state["configuraciones"]["favorita"] = nueva_favorita
+    st.success("⭐ Configuración guardada como favorita")
+
+
 def modo_formulario():
     """
     Controla el flujo del modo de entrada por formulario.
@@ -11,13 +91,29 @@ def modo_formulario():
     Renderiza los formularios, recoge datos del usuario, genera la historia 
     y permite refinarla con sugerencias.
     """
+    # Inicializar configuraciones
+    inicializar_configuraciones()
+    
     st.markdown("Completa los parámetros para generar tu historia:")
-    genero = st.selectbox(
-        "📚 Género",
-        ["Fantasía", "Misterio", "Romance", "Terror", "Ciencia ficción", "Comedia", "Aventura"]
-    )
+    
+    # Fila con selector de género y botón de configuración favorita
+    col_genero, col_favorita = st.columns([3, 1])
+    
+    with col_genero:
+        genero = st.selectbox(
+            "📚 Género",
+            ["Fantasía", "Misterio", "Romance", "Terror", "Ciencia ficción", "Comedia", "Aventura"]
+        )
+    
+    with col_favorita:
+        st.markdown("<br>", unsafe_allow_html=True)  # Espaciado para alineación
+        if st.button("⭐ Favoritos"):
+            cargar_configuracion_favorita()
 
-    data = construir_formulario_principal(genero)
+    # Verificar si se debe usar la configuración favorita
+    usar_favorita = st.session_state.get("usar_favorita", False)
+    
+    data = construir_formulario_principal(genero, usar_favorita)
 
     if data:
         st.session_state["historia_datos"] = data
@@ -34,30 +130,57 @@ def modo_formulario():
     mostrar_bloque_refinamiento()
 
 
-def construir_formulario_principal(genero: str) -> dict | None:
+def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> dict | None:
     """
     Construye y muestra el formulario principal para capturar los datos de la historia.
 
     Parámetros:
         genero (str): Género narrativo seleccionado por el usuario.
+        usar_favorita (bool): Si usar los valores de la configuración favorita.
 
     Retorna:
         dict | None: Diccionario con los datos del usuario si se envía el formulario, de lo contrario None.
     """
+    # Obtener valores base según configuración
+    valores_base = obtener_valores_formulario(genero, usar_favorita)
+    
     with st.form("formulario_historia"):
         data = {"genero": genero}
         col1, col2 = st.columns(2)
 
         with col1:
-            data["personaje"] = st.text_input("👤 Nombre del personaje", "Luna")
-            data["rol"] = st.selectbox("🎭 Rol", ["héroe", "villano", "aliado", "otro"])
-            data["personalidad"] = st.text_area("🧠 Rasgos de personalidad", "curiosa, valiente, impulsiva")
-            data["relacion"] = st.text_input("🔗 Relaciones importantes", "su gato parlante")
+            data["personaje"] = st.text_input(
+                "👤 Nombre del personaje", 
+                value=valores_base.get("personaje", "Luna")
+            )
+            data["rol"] = st.selectbox(
+                "🎭 Rol", 
+                ["héroe", "villano", "aliado", "otro"],
+                index=["héroe", "villano", "aliado", "otro"].index(valores_base.get("rol", "héroe"))
+            )
+            data["personalidad"] = st.text_area(
+                "🧠 Rasgos de personalidad", 
+                value=valores_base.get("personalidad", "curiosa, valiente, impulsiva")
+            )
+            data["relacion"] = st.text_input(
+                "🔗 Relaciones importantes", 
+                value=valores_base.get("relacion", "su gato parlante")
+            )
 
         with col2:
-            data["escenario"] = st.text_input("🌍 Ubicación / Época", "castillo encantado en el bosque")
-            data["atmósfera"] = st.selectbox("🎨 Atmósfera", ["oscura", "alegre", "misteriosa", "épica"])
-            data["conflicto"] = st.text_area("⚔️ Tipo de conflicto", "escapar de un hechizo peligroso")
+            data["escenario"] = st.text_input(
+                "🌍 Ubicación / Época", 
+                value=valores_base.get("escenario", "castillo encantado en el bosque")
+            )
+            data["atmósfera"] = st.selectbox(
+                "🎨 Atmósfera", 
+                ["oscura", "alegre", "misteriosa", "épica"],
+                index=["oscura", "alegre", "misteriosa", "épica"].index(valores_base.get("atmósfera", "misteriosa"))
+            )
+            data["conflicto"] = st.text_area(
+                "⚔️ Tipo de conflicto", 
+                value=valores_base.get("conflicto", "escapar de un hechizo peligroso")
+            )
 
         data["tono"] = st.selectbox("🎵 Tono", ["humorístico", "dramático", "oscuro", "caprichoso"])
         data["longitud"] = st.selectbox("📏 Longitud", ["corta", "mediana", "larga"])
@@ -73,10 +196,27 @@ def construir_formulario_principal(genero: str) -> dict | None:
         with st.expander("🧩 Agregar detalles adicionales"):
             data["detalles_adicionales"] = st.text_area(
                 "✏️ Detalles adicionales",
+                value=valores_base.get("detalles_adicionales", ""),
                 placeholder="Ej: Quiero que tenga un dragón que hable en rimas..."
             )
 
-        submit = st.form_submit_button("✨ Generar historia")
+        # Botones del formulario
+        col_generar, col_guardar = st.columns([2, 1])
+        
+        with col_generar:
+            submit = st.form_submit_button("✨ Generar historia")
+        
+        with col_guardar:
+            guardar_favorita = st.form_submit_button("⭐ Guardar como favorita")
+        
+        # Procesar acciones
+        if guardar_favorita:
+            guardar_configuracion_favorita(data)
+            
+        # Limpiar flag de usar favorita después de usar
+        if st.session_state.get("usar_favorita", False):
+            st.session_state["usar_favorita"] = False
+            
         return data if submit else None
 
 
