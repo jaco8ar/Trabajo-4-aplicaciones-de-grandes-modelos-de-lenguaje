@@ -1,4 +1,3 @@
-import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from creador_de_historias.utils import contar_palabras, construir_contexto
