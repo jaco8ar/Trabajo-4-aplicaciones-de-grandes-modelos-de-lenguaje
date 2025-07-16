@@ -53,6 +53,7 @@ def construir_prompt(data):
     prompt_genero = extra_func(data) if extra_func else ""
 
     prompt_base = f"""
+    Revisar inicialmente si la historia debe ser para niños {data['madurez']}, si la historia no es para niños puedes tocar temas más complejos y profundos.
     Escribe una historia de {data['genero']} con tono {data['tono']}.
     Utiliza estos {prompt_genero} para la arquitectura de la historia de acuerdo al genero elegido.
     Debe haber cohesión entre {prompt_genero}, {data['escenario']}y {data['atmósfera']}
