@@ -1,4 +1,4 @@
-from generation import LENGTH_MAP
+from creador_de_historias.generation import LENGTH_MAP
 
 def prompt_extra_fantasia(data):
     return f"""
