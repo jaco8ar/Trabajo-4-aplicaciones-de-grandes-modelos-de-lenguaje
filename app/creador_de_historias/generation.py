@@ -37,7 +37,10 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
             model="deepseek/deepseek-chat-v3-0324:free",
             messages=[
                 {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
-                {"role": "user", "content": f"{prompt}\nLa historia no debe tener más de {max_palabras + 100}, no digas cuantas palabras o caracteres tiene la historia"}
+                                                {"role": "user", "content": f"{prompt}\n"
+                                                    f"La historia debe tener mínimo {max_palabras - 100} palabras y máximo {max_palabras} palabras, "
+                                                    "no digas cuantas palabras o caracteres tiene la historia"
+                                                    }
             ],
             temperature=0.8,
             max_tokens=max_tokens,
