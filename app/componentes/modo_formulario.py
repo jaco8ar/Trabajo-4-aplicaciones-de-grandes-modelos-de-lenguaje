@@ -4,21 +4,7 @@ from creador_de_historias.generation import generar_historia, refinar_historia
 from componentes.formularios_genero import funciones_campos_genero
 
 
-# Configuraciones por defecto
-CONFIGURACIONES_DEFECTO = {
-    "defecto": {
-        "personaje": "Luna",
-        "rol": "héroe",
-        "personalidad": "curiosa, valiente, impulsiva",
-        "relacion": "su gato parlante",
-        "escenario": "castillo encantado en el bosque",
-        "atmósfera": "misteriosa",
-        "conflicto": "escapar de un hechizo peligroso",
-        "tono": "humorístico",
-        "longitud": "corta",
-        "detalles_adicionales": ""
-    },
-    "favorita": {
+dict_conf_inicial = {
         "personaje": "Luna",
         "rol": "héroe",
         "personalidad": "curiosa, valiente, impulsiva",
@@ -30,6 +16,11 @@ CONFIGURACIONES_DEFECTO = {
         "longitud": "corta",
         "detalles_adicionales": ""
     }
+
+# Configuraciones por defecto
+CONFIGURACIONES_DEFECTO = {
+    "defecto": dict_conf_inicial,
+    "favorita": dict_conf_inicial
 }
 
 
