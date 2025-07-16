@@ -186,7 +186,6 @@ def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> 
 
         data["tono"] = st.selectbox("🎵 Tono", ["humorístico", "dramático", "oscuro", "caprichoso"])
         data["longitud"] = st.selectbox("📏 Longitud", ["corta", "mediana", "larga"])
-        data["madurez"] = st.selectbox("La historia debe ser apropiada para niños?",["si","no"])
 
         st.markdown(f"Completa estas preguntas para que tu historia de {genero.lower()} sea mejor")
 

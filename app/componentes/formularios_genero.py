@@ -4,7 +4,7 @@ def campos_fantasia():
     raza = st.text_input("🧝 Raza o criatura principal", "elfos del bosque")
     magia = st.text_input("✨ Tipo de magia presente", "hechizos de transformación")
     reino = st.text_input("🏰 Reino o territorio mágico", "Elarion")
-    politica = st.txt_input("Tipo de gobierno del reino", "Dictadura") 
+    politica = st.text_input("Tipo de gobierno del reino", "Dictadura") 
     return {"raza": raza, "magia": magia, "reino": reino, "politica" : politica}
 
 def campos_misterio():
