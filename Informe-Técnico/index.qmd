@@ -1,1 +1,254 @@
+---
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+execute:
+  echo: false
+   
+---
+
+
+
+```{=html}
+
+<style>
+    h2 {
+        border: none !important;
+        box-shadow: none !important;
+        border-bottom: none !important;
+    }
+</style>
+<div style="
+    background-color:rgb(255, 255, 255);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);">
+    <h1 style="color:rgb(26, 54, 97); font-size: 50px;">Trabajo 4: Implementación del Agente Creativo de Historias con LLMs</h1>
+    <h2 style="color: #555;">Redes Neuronales y Algoritmos Bioinspirados</h2>
+
+    <h3 style="color: #222; margin: 10px 0;">Equipo:</h3>
+    <ul style="list-style: none; padding: 0; font-size: 20px;">
+        <li>Juan José Correa Hurtado</li>
+        <li>Jacobo Ochoa Ramírez</li>
+    </ul>
+    <h3 style="color: #222; margin: 10px 0;">Profesor:</h3>
+    <ul style="list-style: none; padding: 0; font-size: 20px;">
+        <li>Juan David Ospina Arango</li>
+    </ul>
+    <h2 style="color: #555;">Universidad Nacional de Colombia</h2>
+    <img src="imagenes/logo_UNAL.png" alt="logo UNAL" />
+</div>
+
+```
+
+Descripción del Proyecto
+Crearán un agente interactivo de generación de historias que colabore con los usuarios para escribir relatos cortos atractivos. Su agente debe ser capaz de generar historias de diferentes géneros mientras incorpora elementos especificados por el usuario como personajes, escenarios y dispositivos narrativos.
+Requisitos TécnicosFuncionalidad Principal
+Su agente de historias debe implementar las siguientes características:
+
+1. Módulo de Procesamiento de Entradas:
+Aceptar y validar entradas del usuario para elementos de la historia
+Manejar diferentes formatos de entrada (formularios estructurados, descripciones en lenguaje natural, o entrada mixta)
+Proporcionar mensajes de error útiles y sugerencias para entradas incompletas
+2. Motor de Generación de Historias:
+Interfaz con una API de LLM (OpenAI GPT, Anthropic Claude, o similar)
+Implementar diferentes estrategias de generación de historias basadas en el género
+Generar historias entre 300-800 palabras
+Asegurar coherencia narrativa y estructura adecuada de la historia
+3. Interfaz de Usuario:
+Crear una interfaz de línea de comandos o una interfaz web simple
+Permitir a los usuarios especificar parámetros de la historia de forma interactiva
+Mostrar las historias generadas en un formato legible
+Proporcionar opciones para regenerar o modificar historias
+(Bonuns) Generar una imagen que ilustre la historia
+Elementos Requeridos de la Historia
+Su agente debe manejar estas entradas del usuario:
+Personajes: Nombre, rol, rasgos de personalidad, relaciones 
+Escenario: Período de tiempo, ubicación, atmósfera
+Género: Fantasía, misterio, romance, terror, ciencia ficción, comedia, aventura 
+Elementos de Trama: Tipo de conflicto, obstáculos, estilo de resolución 
+Tono: Humorístico, oscuro, caprichoso, dramático, satírico 
+Preferencia de Longitud:Corta (300-400 palabras), mediana (400-600 palabras), larga (600-800 palabras)
+
+#Informe
+
+# Informe Técnico: 
+
+## 1. Introducción
+Este informe técnico analiza la implementación del proyecto **Agente Creativo de Historias con LLMs**. El objetivo del proyecto es desarrollar un agente interactivo que colabore con usuarios para generar historias cortas (300-800 palabras) de diversos géneros, incorporando elementos narrativos definidos por el usuario a través de una interfaz web basada en Streamlit. Este informe detalla la arquitectura, implementación, funcionalidades, evaluación y posibles mejoras del sistema.
+---
+
+## 2. Objetivos del Proyecto
+El sistema tiene como objetivo:
+- Generar historias coherentes y atractivas basadas en entradas del usuario, ya sea en formato libre o estructurado.
+- Soportar múltiples géneros narrativos (fantasía, misterio, romance, terror, ciencia ficción, comedia, aventura).
+- Validar y procesar entradas del usuario para garantizar calidad en las historias generadas.
+- Permitir refinamiento interactivo de historias generadas.
+- Ofrecer una interfaz web intuitiva utilizando Streamlit.
+
+---
+
+## 3. Arquitectura del Sistema
+La implementación sigue una arquitectura modular dividida en varios componentes:
+
+1. **Módulo de Procesamiento de Entradas** ('validator.py', 'modo_texto_libre.py', 'modo_formulario.py'):
+   - Valida y estructura las entradas del usuario, ya sea en formato libre (texto natural) o estructurado (formularios).
+   - Extrae elementos narrativos clave (personaje, rol, género, escenario, conflicto) utilizando un LLM para procesar texto libre.
+2. **Motor de Generación de Historias** ('generation.py', 'prompts.py','validator.py'):
+   - Construye prompts específicos por género e interactúa con la API de OpenRouter (modelo 'deepseek/deepseek-chat') para generar historias.
+   - Maneja la longitud de las historias (corta: ~400 palabras, mediana: ~600 palabras, larga: ~800 palabras) y realiza refinamiento si la respuesta excede los límites.
+   - Crea el prompts a partir de las especificaciones del usuario.
+3. **Interfaz de Usuario** ('modo_formulario.py', 'modo_texto_libre.py','formularios_genero'):
+   - Implementa una interfaz web con Streamlit que ofrece dos modos: formulario estructurado y texto libre.
+   - Permite a los usuarios generar y refinar historias de manera interactiva.
+   - Permite la especificación a profundidad y personalización de la historia generada.
+4. **Integraciones Externas**:
+   - Utiliza la API de OpenRouter para interactuar con el LLM 'deepseek/deepseek-chat'.
+   - Gestiona claves de API a través de variables de entorno ('dotenv').
+
+**Diagrama de Arquitectura**:
+```
+[Usuario] --> [Streamlit UI: Formulario/Texto Libre]
+                |
+                v
+  [Procesamiento de Entradas: validator.py/modo_*.py]
+                |
+                v
+  [Motor de Generación: generation.py/prompts.py]
+                |
+                v
+  [API OpenRouter: deepseek/deepseek-chat]
+                |
+                v
+  [Salida: Historia Generada/Refinada]
+                |
+                v
+  [Usuario: Visualización en Streamlit]
+```
+
+---
+
+## 4. Implementación
+La implementación está escrita en Python y utiliza varias bibliotecas y herramientas para cumplir con los requisitos del proyecto. A continuación, se describen los detalles clave de cada módulo:
+
+### 4.1. Módulo de Procesamiento de Entradas
+- **Archivo**: `validator.py`, `modo_texto_libre.py`, `modo_formulario.py`, `formularios_genero.py`
+- **Funcionalidad**:
+  - **Validación de texto libre** (`validator.py`):
+    - Utiliza el LLM `deepseek/deepseek-chat` para analizar texto libre y extraer elementos narrativos (personaje, rol, género, escenario, conflicto).
+    - Devuelve un JSON con un indicador `es_historia` (si el texto es una solicitud válida) y los elementos extraídos.
+    - Maneja reintentos (máximo 2) en caso de respuestas inválidas o errores de formato JSON.
+  - **Modo formulario** (`modo_formulario.py`, `formularios_genero.py`):
+    - Proporciona un formulario interactivo en Streamlit con campos comunes (personaje, rol, personalidad, escenario, atmósfera, conflicto, tono, longitud) y campos específicos por género (ejemplo: raza y magia para fantasía, crimen y pistas para misterio).
+    - Almacena los datos en un diccionario para su uso en la generación de prompts.
+  - **Modo texto libre** (`modo_texto_libre.py`):
+    - Permite al usuario ingresar una descripción en lenguaje natural.
+    - Valida la entrada y muestra advertencias si faltan elementos clave, con opción de generar la historia de todas formas.
+- **Tecnologías**:
+  - `openai`: Cliente para interactuar con la API de OpenRouter.
+  - `streamlit`: Para crear formularios y mostrar resultados.
+  - `json`: Para procesar respuestas del LLM en formato JSON.
+  - `dotenv`: Para gestionar claves de API.
+
+### 4.2. Motor de Generación de Historias
+- **Archivo**: `generation.py`, `prompts.py`
+- **Funcionalidad**:
+  - **Construcción de prompts** (`prompts.py`):
+    - Define funciones específicas por género (`prompt_extra_*`) que añaden detalles narrativos relevantes (ejemplo: criaturas mágicas para fantasía, enigmas para misterio).
+    - Construye un prompt base que incluye estructura narrativa (introducción, desarrollo, resolución), personaje, escenario, conflicto, tono, y longitud deseada.
+    - Utiliza un diccionario `funciones_genero` para mapear géneros a sus respectivas funciones de prompts.
+  - **Generación de historias** (`generation.py`):
+    - Interactúa con la API de OpenRouter usando el modelo `deepseek/deepseek-chat`.
+    - Mapea longitudes de historias (corta: 550 tokens/~400 palabras, mediana: 800 tokens/~600 palabras, larga: 1100 tokens/~800 palabras).
+    - Maneja casos en que la respuesta excede el límite de tokens, generando una versión más corta con un prompt ajustado.
+  - **Refinamiento de historias** (`generation.py`):
+    - Permite modificar una historia existente según sugerencias del usuario, manteniendo el contexto original (formulario o texto libre).
+    - Usa un nuevo mensaje al LLM con la historia original y la sugerencia de cambio.
+- **Tecnologías**:
+  - `openai`: Cliente para la API de OpenRouter.
+  - `requests`: Para manejar errores de conexión.
+  - `dotenv`: Para cargar claves de API desde un archivo `.env`.
+
+### 4.3. Interfaz de Usuario
+- **Archivo**: `modo_formulario.py`, `modo_texto_libre.py`
+- **Funcionalidad**:
+  - **Modo formulario**:
+    - Presenta un formulario en Streamlit con campos predefinidos y específicos por género.
+    - Al enviar el formulario, genera la historia y la muestra en la interfaz.
+    - Permite refinamiento mediante un formulario adicional para sugerencias.
+  - **Modo texto libre**:
+    - Ofrece un área de texto para descripciones en lenguaje natural.
+    - Valida la entrada y sugiere mejoras si faltan elementos clave.
+    - Muestra la historia generada y permite refinamiento.
+- **Tecnologías**:
+  - `streamlit`: Framework para la interfaz web.
+  - Sesiones de estado (`st.session_state`) para almacenar datos como la historia generada y los parámetros de entrada.
+
+
+---
+
+## 5. Evaluación
+### 5.1. Cumplimiento de Requisitos
+- **Procesamiento de Entradas**:
+  - Soporta entradas estructuradas (formularios) y en lenguaje natural (texto libre).
+  - Valida entradas con retroalimentación clara (advertencias sobre elementos faltantes).
+  - Usa un LLM para extraer elementos narrativos en modo texto libre.
+- **Generación de Historias**:
+  - Genera historias coherentes de 300-800 palabras según la longitud seleccionada.
+  - Implementa estrategias específicas por género mediante prompts personalizados.
+  - Integra la API de OpenRouter (`deepseek/deepseek-chat`) para generación de texto.
+- **Interfaz de Usuario**:
+  - Ofrece una interfaz web intuitiva con Streamlit, con soporte para formularios y texto libre.
+  - Permite regenerar y refinar historias de manera interactiva.
+- **Funcionalidad Opcional (Imágenes)**:
+  - No se implementó la generación de imágenes, lo cual era un bonus opcional.
+
+### 5.2. Métricas de Evaluación
+- **Coherencia narrativa**: Las historias generadas mantienen una estructura clara (introducción, desarrollo, resolución) gracias a los prompts estructurados.
+- **Robustez**: El sistema maneja errores de conexión y respuestas inválidas con reintentos y mensajes de error claros.
+- **Usabilidad**: La interfaz de Streamlit es intuitiva, con formularios bien organizados y retroalimentación inmediata.
+- **Tiempo de respuesta**: Depende de la API de OpenRouter, pero el diseño asíncrono de Streamlit asegura una experiencia fluida.
+
+### 5.3. Limitaciones Observadas
+- **Dependencia de la API**: El sistema depende completamente de OpenRouter, lo que lo hace vulnerable a problemas de conectividad o límites de la API.
+- **Validación limitada**: Aunque valida elementos clave, no implementa reglas avanzadas para detectar incoherencias semánticas en las entradas.
+- **Falta de generación de imágenes**: La funcionalidad opcional de generar imágenes no está implementada.
+- **Escalabilidad**: No hay optimizaciones para manejar múltiples usuarios simultáneamente.
+
+---
+
+
+---
+
+## 6. Posibles Mejoras
+- **Generación de Imágenes**: Integrar APIs como DALL-E o Stable Diffusion para generar ilustraciones basadas en las historias.
+- **Validación Avanzada**: Implementar reglas más sofisticadas para detectar incoherencias en las entradas (ejemplo: conflictos incompatibles con el género).
+- **Multilingüismo**: Permitir generar historias en diferentes idiomas utilizando modelos multilingües como mT5 o LLaMA.
+- **Almacenamiento de Historias**: Implementar una base de datos (SQLite o MongoDB) para guardar historias generadas y permitir a los usuarios recuperarlas.
+- **Optimización de Rendimiento**: Usar caché para prompts frecuentes y optimizar llamadas a la API para reducir costos y tiempos de respuesta.
+- **Soporte Offline**: Integrar un modelo local (como LLaMA) para reducir la dependencia de APIs externas.
+
+---
+
+## 7. Conclusión
+La implementación del **Agente Creativo de Historias con LLMs** es un sistema robusto y funcional que cumple con la mayoría de los requisitos establecidos. La arquitectura modular, el uso de Streamlit para la interfaz, y la integración con la API de OpenRouter permiten generar historias coherentes y personalizadas de manera interactiva. Aunque carece de la funcionalidad opcional de generación de imágenes, el sistema es extensible y puede mejorarse con las sugerencias propuestas. Este proyecto demuestra un uso efectivo de LLMs para aplicaciones creativas, con potencial en educación, entretenimiento y escritura asistida.
+Por otro lado, queda claro que hay un límite a cuánto se puede modificar los prompts para evitar que se den incorehencias en la historia, pues en caso del usuario desearlo puede darle especificaciones contradictorias al agente a tal punto que no se pueda crear una historia coherente a partir de estas. La facilidad y rápidez que estos modelos se acomodan a las instrucciones entregadas puede ahorrar una cantidad de tiempo y esfuerzo incalculable para ciertos trabajos pero siempre es importante recordar sus limitaciones y que son una herramienta.
+
+---
+
+**Referencias**:
+- Repositorio: https://github.com/jaco8ar/Trabajo-4-aplicaciones-de-grandes-modelos-de-lenguaje
+- Documentación de OpenRouter: https://openrouter.ai/docs
+- Documentación de Streamlit: https://docs.streamlit.io
+- Gomila, J. G. (2024b, diciembre 17). Dominando la IA Generativa y la ingeniería de LLMs - Recursos. Frogames. https://cursos.frogamesformacion.com/pages/blog/ingenieria-de-llms-recursos
+- Large Language Models (LLMs) with Google AI. (s. f.). Google Cloud. https://cloud.google.com/ai/llms
+- Azure Microsoft. ¿Qué son los modelos de lenguaje de grandes (LLM). Microsoft. https://azure.microsoft.com/es-es/resources/cloud-computing-dictionary/what-are-large-language-models-llms#Resources
+
+
+Si necesitas asistencia adicional, como implementar una mejora específica o depurar un módulo, ¡puedes pedírmelo!
 
