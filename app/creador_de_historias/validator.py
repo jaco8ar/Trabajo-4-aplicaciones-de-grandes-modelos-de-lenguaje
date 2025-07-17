@@ -6,7 +6,7 @@ from creador_de_historias.generation import CLIENT
 import json
 
 load_dotenv()
-
+MODEL_NAME = "deepseek/deepseek-chat-v3-0324:free"
 
 def validar_entrada_libre(texto: str, intentos_max: int = 2):
     """
@@ -59,7 +59,7 @@ def validar_entrada_libre(texto: str, intentos_max: int = 2):
     for intento in range(1, intentos_max + 1):
         try:
             response = CLIENT.chat.completions.create(
-                model="deepseek/deepseek-chat",
+                model=MODEL_NAME,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
                 max_tokens=600
@@ -133,7 +133,7 @@ def evaluar_apto_para_edad(historia: str, rango_edad: str) -> tuple[bool, str]:
 
     try:
         response = CLIENT.chat.completions.create(
-            model="deepseek/deepseek-chat",
+            model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.0,
             max_tokens=400

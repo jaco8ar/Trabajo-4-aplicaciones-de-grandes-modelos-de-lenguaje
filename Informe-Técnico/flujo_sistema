@@ -1,0 +1,21 @@
+digraph {
+	U [label=Usuario]
+	S [label="Streamlit UI:
+Formulario/Texto Libre"]
+	V [label="Procesamiento de Entradas:
+validator.py / modo_*.py"]
+	G [label="Motor de Generación:
+generation.py / prompts.py"]
+	A [label="API OpenRouter:
+deepseek / deepseek-chat"]
+	H [label="Salida:
+Historia Generada / Refinada"]
+	R [label="Usuario:
+Visualización en Streamlit"]
+	U -> S
+	S -> V
+	V -> G
+	G -> A
+	A -> H
+	H -> R
+}

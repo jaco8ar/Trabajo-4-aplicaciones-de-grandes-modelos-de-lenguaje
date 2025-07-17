@@ -1,0 +1,7 @@
+project:
+  type: website
+
+resources: -imagenes/**
+
+website:
+  title: "Implementación del Agente Creativo de Historias con LLMs"

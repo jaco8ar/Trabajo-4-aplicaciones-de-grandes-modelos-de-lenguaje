@@ -14,6 +14,8 @@ CLIENT = OpenAI(
 
 MAX_TOKENS = 2000
 
+MODEL_NAME = "deepseek/deepseek-chat-v3-0324:free"
+
 # Asigna tamaño según la longitud deseada palabras
 LENGTH_MAP = {
     "corta":    400,    
@@ -77,7 +79,7 @@ def corregir_longitud_historia(historia: str, prompt: str, max_palabras: int, ra
     instruccion += "Solo debes decir el titulo de la historia y la historia nada de comentarios extra o entre parentesis."
     
     retry_completion = CLIENT.chat.completions.create(
-        model="deepseek/deepseek-chat",
+        model=MODEL_NAME,
         messages=[
             {"role": "system", "content": "Eres un narrador experto en ajustar la longitud de historias sin perder coherencia ni estilo"
                                           " y con una excelente memoria para detalles como nombres y los temas de las historias."},
@@ -103,7 +105,7 @@ def generar_historia_una_vez(prompt: str) -> str:
         str: Historia generada por el modelo.
     """
     completion = CLIENT.chat.completions.create(
-        model="deepseek/deepseek-chat-v3-0324:free",
+        model=MODEL_NAME,
         messages=[
             {"role": "system", "content": "Eres un narrador experto en crear historias estructuradas y creativas para los usuarios."},
             {"role": "user", "content": prompt}
@@ -138,7 +140,7 @@ def refinar_historia(historia_actual: str, sugerencia: str, datos_entrada: dict,
 
     try:
         completion = CLIENT.chat.completions.create(
-            model="deepseek/deepseek-chat",
+            model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": "Eres un narrador experto en editar y mejorar historias manteniendo coherencia, estilo y estructura."},
                 {"role": "user", "content": f"{contexto}"},

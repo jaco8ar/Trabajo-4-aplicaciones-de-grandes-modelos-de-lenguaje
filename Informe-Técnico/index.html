@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>index</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="index_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<style>
+    h2 {
+        border: none !important;
+        box-shadow: none !important;
+        border-bottom: none !important;
+    }
+</style>
+<div style="
+    background-color:rgb(255, 255, 255);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);">
+    <h1 style="color:rgb(26, 54, 97); font-size: 50px;">Trabajo 4: Implementación del Agente Creativo de Historias con LLMs</h1>
+    <h2 style="color: #555;" class="anchored">Redes Neuronales y Algoritmos Bioinspirados</h2>
+
+    <h3 style="color: #222; margin: 10px 0;" class="anchored">Equipo:</h3>
+    <ul style="list-style: none; padding: 0; font-size: 20px;">
+        <li>Juan José Correa Hurtado</li>
+        <li>Jacobo Ochoa Ramírez</li>
+    </ul>
+    <h3 style="color: #222; margin: 10px 0;" class="anchored">Profesor:</h3>
+    <ul style="list-style: none; padding: 0; font-size: 20px;">
+      <li>Juan David Ospina Arango</li>
+    </ul>
+    <h2 style="color: #555;" class="anchored">Universidad Nacional de Colombia</h2>
+    <img src="imagenes/logo_UNAL.png" alt="logo UNAL">
+</div>
+<section id="tabla-de-contenidos" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Tabla de Contenidos</h1>
+<ol type="1">
+<li><a href="#introducción">Introducción</a></li>
+<li><a href="#descripción-del-proyecto">Descripción del Proyecto</a>
+<ul>
+<li>2.1 <a href="#funcionalidad-principal">Funcionalidad Principal</a></li>
+<li>2.2 <a href="#elementos-narrativos-considerados">Elementos Narrativos Considerados</a></li>
+</ul></li>
+<li><a href="#objetivos-del-proyecto">Objetivos del Proyecto</a></li>
+<li><a href="#arquitectura-e-implementación">Arquitectura e Implementación</a>
+<ul>
+<li>4.1 <a href="#procesamiento-de-entradas-validatorpy">Procesamiento de Entradas</a></li>
+<li>4.2 <a href="#motor-de-generación-de-historias-generationpy-promptspy">Motor de Generación de Historias</a></li>
+<li>4.3 <a href="#interfaz-de-usuario-modo_formulariopy-modo_texto_librepy-formularios_generopy">Interfaz de Usuario</a></li>
+<li>4.4 <a href="#integración-externa">Integración Externa</a></li>
+</ul></li>
+<li><a href="#documentación-y-reflexión">Documentación y Reflexión</a>
+<ul>
+<li>5.1 <a href="#decisiones-de-diseño">Decisiones de Diseño</a></li>
+<li>5.2 <a href="#capacidades-y-limitaciones-de-llm">Capacidades y Limitaciones de LLM</a></li>
+<li>5.3 <a href="#comparación-modo-libre-contra-modo-formulario">Comparación Modo Libre contra Modo Formulario</a></li>
+<li>5.4 <a href="#desafíos-encontrados-y-soluciones-implementadas">Desafíos Encontrados y Soluciones Implementadas</a></li>
+<li>5.5 <a href="#posibles-mejoras">Posibles Mejoras</a></li>
+</ul></li>
+<li><a href="#conclusión">Conclusión</a></li>
+<li><a href="#referencias">Referencias</a></li>
+</ol>
+</section>
+<section id="índice-de-tablas" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Índice de Tablas</h1>
+<ul>
+<li><strong><a href="#tabla-1-comparación-modo-libre-contra-modo-formulario">Tabla 1:</a></strong> Comparación modo libre contra modo formulario (Sección 5.3)</li>
+</ul>
+<hr>
+</section>
+<section id="introducción" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Introducción</h1>
+<p>La inteligencia artificial generativa ha abierto nuevas posibilidades para la creación automatizada de contenidos. En este contexto, el presente proyecto explora el desarrollo de un agente interactivo que colabore con los usuarios en la creación de relatos cortos, combinando capacidades de procesamiento de lenguaje natural con una interfaz web accesible.</p>
+<p>El sistema, implementado con modelos de lenguaje de gran escala (LLMs) y desplegado mediante Streamlit, permite generar historias coherentes y estilísticamente ajustadas según distintos géneros narrativos. Los usuarios pueden definir elementos clave como personajes, escenarios y tono, ya sea a través de formularios estructurados o descripciones en lenguaje natural.</p>
+<p>Este informe detalla el diseño, la implementación, las funcionalidades principales y las oportunidades de mejora del sistema propuesto.</p>
+</section>
+<section id="descripción-del-proyecto" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Descripción del Proyecto</h1>
+<p>Este proyecto consiste en el desarrollo de un agente interactivo de generación de historias, diseñado para colaborar con los usuarios en la escritura de relatos cortos atractivos. El sistema permite generar historias de distintos géneros literarios, incorporando elementos narrativos especificados por el usuario, como personajes, escenarios y dispositivos de trama.</p>
+<section id="funcionalidad-principal" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="funcionalidad-principal"><span class="header-section-number">4.1</span> Funcionalidad Principal</h2>
+<p>El agente implementa las siguientes funcionalidades clave:</p>
+<ol type="1">
+<li><p><strong>Módulo de Procesamiento de Entradas</strong>: Se desarrolló un componente capaz de aceptar y validar entradas del usuario, permitiendo describir los elementos de la historia mediante distintos formatos: formularios estructurados, lenguaje natural o combinaciones de ambos. El sistema incluye validaciones dinámicas que proporcionan mensajes de error claros y sugerencias útiles ante entradas incompletas.</p></li>
+<li><p><strong>Motor de Generación de Historias</strong>: El núcleo generador del agente se conecta con modelos de lenguaje de gran escala (LLMs), específicamente con Deepseek chat. Se utilizan estrategias diferenciadas de generación según el género narrativo seleccionado. Las historias generadas tienen una longitud de entre 300 y 800 palabras, con especial atención en mantener la coherencia narrativa, una estructura sólida y un estilo narrativo acorde al género y tono.</p></li>
+<li><p><strong>Interfaz de Usuario</strong>: Se diseñó una interfaz web interactiva que permite a los usuarios ingresar sus preferencias de manera intuitiva. La interfaz muestra las historias generadas en un formato claro y legible, y ofrece opciones para regenerar o refinar el relato.</p></li>
+</ol>
+</section>
+<section id="elementos-narrativos-considerados" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="elementos-narrativos-considerados"><span class="header-section-number">4.2</span> Elementos Narrativos Considerados</h2>
+<p>El sistema permite a los usuarios personalizar la historia a partir de los siguientes elementos:</p>
+<ul>
+<li><strong>Personajes</strong>: Nombre, rol, rasgos de personalidad y relaciones entre ellos.</li>
+<li><strong>Escenario</strong>: Ubicación, época histórica y atmósfera general del relato.</li>
+<li><strong>Género</strong>: Fantasía, misterio, romance, terror, ciencia ficción, comedia o aventura.</li>
+<li><strong>Elementos de Trama</strong>: Tipo de conflicto.</li>
+<li><strong>Tono</strong>: Humorístico, oscuro, caprichoso, dramático o satírico.</li>
+<li><strong>Longitud Preferida</strong>: Corta (300–400 palabras), mediana (400–600 palabras) o larga (600–800 palabras).</li>
+</ul>
+</section>
+</section>
+<section id="objetivos-del-proyecto" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Objetivos del Proyecto</h1>
+<p>El sistema tiene como objetivo:</p>
+<ul>
+<li>Generar historias coherentes y atractivas basadas en entradas del usuario, ya sea en formato libre o estructurado.</li>
+<li>Soportar múltiples géneros narrativos (fantasía, misterio, romance, terror, ciencia ficción, comedia, aventura).</li>
+<li>Validar y procesar entradas del usuario para garantizar calidad en las historias generadas.</li>
+<li>Permitir refinamiento interactivo de historias generadas.</li>
+<li>Construir historias coherentes y aptas para su público objetivo.</li>
+<li>Identificar estrategias para la construcción de prompts efectivos en el uso de LLMs.</li>
+<li>Ofrecer una interfaz web intuitiva utilizando Streamlit.</li>
+</ul>
+</section>
+<section id="arquitectura-e-implementación" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Arquitectura e Implementación</h1>
+<p>El sistema de generación de historias se organiza en una arquitectura modular orientada a componentes, que facilita la extensión y el mantenimiento. La interacción entre módulos sigue un flujo lógico desde la entrada del usuario hasta la entrega de la historia generada o refinada.</p>
+<section id="procesamiento-de-entradas-validator.py" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="procesamiento-de-entradas-validator.py"><span class="header-section-number">6.1</span> Procesamiento de Entradas (<code>validator.py</code>)</h2>
+<p>Este módulo se encarga de interpretar y validar las solicitudes del usuario:</p>
+<ul>
+<li>En el modo de <strong>texto libre</strong>, se conecta con la API de OpenRouter para identificar si la entrada describe una historia válida.</li>
+<li>Extrae automáticamente elementos narrativos clave como personaje, rol, género, escenario y conflicto, y los devuelve en un JSON estructurado.</li>
+<li>Si la entrada no cumple con los requisitos, ofrece advertencias al usuario.</li>
+<li>Incluye manejo de errores con reintentos automáticos cuando el modelo devuelve un formato inválido.</li>
+<li>Evalúa la aptitud de una historia para un público específico mediante un LLM.</li>
+</ul>
+</section>
+<section id="motor-de-generación-de-historias-generation.py-prompts.py" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="motor-de-generación-de-historias-generation.py-prompts.py"><span class="header-section-number">6.2</span> Motor de Generación de Historias (<code>generation.py</code>, <code>prompts.py</code>)</h2>
+<p>Este componente se encarga de construir prompts y generar texto de manera controlada:</p>
+<ul>
+<li><strong><code>prompts.py</code></strong> define funciones por género (fantasía, misterio, etc.) que agregan contexto específico a los prompts.</li>
+<li><strong><code>generation.py</code></strong> envía estos prompts al modelo de lenguaje vía OpenRouter y devuelve la historia.</li>
+<li>Controla la longitud deseada (corta, media, larga) adaptando los límites de tokens y ajustando el contenido del prompt cuando es necesario.</li>
+<li>Permite <strong>refinamiento iterativo</strong>, es decir, generar una nueva versión de la historia a partir de una sugerencia del usuario.</li>
+</ul>
+</section>
+<section id="interfaz-de-usuario-modo_formulario.py-modo_texto_libre.py-formularios_genero.py" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="interfaz-de-usuario-modo_formulario.py-modo_texto_libre.py-formularios_genero.py"><span class="header-section-number">6.3</span> Interfaz de Usuario (<code>modo_formulario.py</code>, <code>modo_texto_libre.py</code>, <code>formularios_genero.py</code>)</h2>
+<p>La interfaz está desarrollada en <strong>Streamlit</strong> y ofrece dos modos:</p>
+<ul>
+<li><strong>Modo Formulario</strong>:
+<ul>
+<li>Presenta campos narrativos generales (personaje, escenario, conflicto) y específicos por género (por ejemplo, “poder mágico” para fantasía).</li>
+<li>Guarda la entrada en <code>st.session_state</code> y permite generar o refinar la historia con base en nuevas sugerencias.</li>
+</ul></li>
+<li><strong>Modo Texto Libre</strong>:
+<ul>
+<li>Permite ingresar descripciones libres que son validadas automáticamente.</li>
+<li>Si la entrada cumple criterios narrativos, se genera la historia. De lo contrario, se muestran advertencias o recomendaciones.</li>
+<li>Permite también el refinamiento posterior de la historia.</li>
+</ul></li>
+</ul>
+</section>
+<section id="integración-externa" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="integración-externa"><span class="header-section-number">6.4</span> Integración Externa</h2>
+<ul>
+<li>La generación de texto se realiza mediante la API de <strong>OpenRouter</strong>, utilizando el modelo <code>deepseek/deepseek-chat-v3-0324:free</code>.</li>
+<li>Las claves de API se almacenan en variables de entorno definidas en el archivo <code>secrets.toml</code> de Streamlit Cloud o usando <code>dotenv</code> en desarrollo local.</li>
+</ul>
+<p>Esta arquitectura permite tanto la <strong>generación estructurada</strong> como la <strong>generación libre y flexible</strong>, manteniendo trazabilidad de entradas y salidas, así como opciones de refinamiento para mejorar iterativamente los resultados.</p>
+</section>
+</section>
+<section id="documentación-y-reflexión" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Documentación y Reflexión</h1>
+<section id="decisiones-de-diseño" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="decisiones-de-diseño"><span class="header-section-number">7.1</span> Decisiones de Diseño</h2>
+<p>En el transcurso del desarrollo del aplicativo se analizaron una serie de decisiones clave para la construcción del MVP desplegado. Estas son:</p>
+<ul>
+<li><strong>Selección de Streamlit como framework de desarrollo</strong>: esta herramienta permitió un flujo de desarrollo ágil y versátil, lo que facilitó al equipo enfocarse primordialmente en la funcionalidad del sistema más que en el diseño frontend tradicional.</li>
+<li><strong>Selección de la plataforma OpenRouter como proveedor de la API</strong> para el uso del LLM: se consideraron otros proveedores, incluso algunos de pago; sin embargo, esta plataforma ofrece una integración sencilla y sin conflictos con otras tecnologías utilizadas en el proyecto.</li>
+<li><strong>Construcción independiente de los módulos de texto libre y de formulario</strong>: esta decisión permitió dar un enfoque personalizado a ambos modos y, de esta manera, aprovechar mejor sus cualidades.</li>
+<li><strong>Construcción modular de los prompts por género</strong>: el módulo de prompts por género permitió una interacción más versátil con el LLM y, a futuro, abre la posibilidad de agregar otros géneros con gran facilidad.</li>
+<li><strong>Construcción iterativa de historias</strong>: permitir al usuario construir y mejorar sus historias puede ser el elemento más crucial del proyecto. Es el componente que permite convertir historias buenas en relatos excelentes.</li>
+<li><strong>Guardado de configuraciones</strong>: es una herramienta muy útil para construir múltiples historias y mantener la posibilidad de volver a aquellas que han impactado más al usuario. Se considera, para trabajos futuros, lograr un mayor nivel de persistencia mediante un sistema de registro de sesión, ya que actualmente está limitado a la sesión activa del navegador.</li>
+<li><strong>Filtro de edad</strong>: se implementó un control en la construcción de la historia a partir del prompt, el cual obtuvo resultados excelentes. Sin embargo, dado que estas historias pueden ser compartidas con un público sensible, se implementó un segundo control que, mediante otro agente LLM, evalúa el contenido de la historia. Esto garantiza que el contenido generado sea siempre apto para el público objetivo.</li>
+</ul>
+</section>
+<section id="capacidades-y-limitaciones-de-llm" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="capacidades-y-limitaciones-de-llm"><span class="header-section-number">7.2</span> Capacidades y Limitaciones de LLM</h2>
+<p>La calidad de las historias generadas por el aplicativo fue notablemente alta, superando las expectativas iniciales. Esto resulta especialmente destacable considerando que se utilizó un modelo de lenguaje relativamente básico y gratuito, en contraste con los modelos de gran escala y alto costo disponibles en la actualidad. La coherencia narrativa, creatividad y adaptación al contexto de entrada evidencian el potencial de soluciones ligeras bien diseñadas para tareas complejas como la generación de relatos.</p>
+<section id="limitaciones-observadas" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="limitaciones-observadas"><span class="header-section-number">7.2.1</span> Limitaciones Observadas</h3>
+<ul>
+<li><strong>Dependencia de la API</strong>: El sistema depende completamente de OpenRouter, lo que lo hace vulnerable a problemas de conectividad o límites de la API.</li>
+<li><strong>Dificultad en la construcción</strong>: Manipular el comportamiento del agente solo con el uso de unos pocos parámetros y entradas puramente textuales genera múltiples complejidades, lo que hace el proceso de construcción de prompts una tarea altamente iterativa y tardada. Es especialmente difícil indicarle al agente qué no debe hacer.</li>
+<li><strong>Falta de generación de imágenes</strong>: La funcionalidad opcional de generar imágenes no está implementada, se consideró el uso de un modelo de pago para lograr este objetivo, pero la idea fue eventualmente descartada.</li>
+</ul>
+</section>
+</section>
+<section id="comparación-modo-libre-contra-modo-formulario" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="comparación-modo-libre-contra-modo-formulario"><span class="header-section-number">7.3</span> Comparación Modo Libre contra Modo Formulario</h2>
+<p>Se realiza una comparación de las cualidades y desventajas en algunos aspectos de los modos construidos en el proyecto.</p>
+<section id="tabla-1-comparación-modo-libre-contra-modo-formulario" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="tabla-1-comparación-modo-libre-contra-modo-formulario"><span class="header-section-number">7.3.1</span> <strong>Tabla 1:</strong> Comparación modo libre contra modo formulario</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 38%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Criterio</th>
+<th>Modo Texto Libre</th>
+<th>Modo Formulario Estructurado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Facilidad de uso</td>
+<td>Su naturaleza libre permite una mayor expresión creativa por parte del usuario, sin embargo necesita de un mayor esfuerzo inicial</td>
+<td>Es muy intuitivo y su estructura guiada permite la creación de historias interesantes y con poco esfuerzo</td>
+</tr>
+<tr class="even">
+<td>Validación de entradas</td>
+<td>Necesita de técnicas más complejas para hacer validación de entradas</td>
+<td>Por su sistema estructurado hace posible que la validación de entradas sea muy sencilla y efectiva de implementar</td>
+</tr>
+<tr class="odd">
+<td>Control del flujo narrativo</td>
+<td>A pesar de que se especifica por prompt el seguimiento de un flujo narrativo, este es muy dependiente de la especificidad del usuario</td>
+<td>El flujo narrativo está bien definido por el formulario</td>
+</tr>
+<tr class="even">
+<td>Adaptabilidad al género</td>
+<td>Es dependiente de la especificidad del usuario</td>
+<td>Tiene una adaptación muy precisa al género</td>
+</tr>
+<tr class="odd">
+<td>Calidad narrativa esperada</td>
+<td>Está ligada a la calidad de la petición del usuario</td>
+<td>Garantiza una calidad narrativa base para cualquier historia requerida por el usuario</td>
+</tr>
+<tr class="even">
+<td>Interacción con el modelo</td>
+<td>La interacción invita al usuario a ser propositivo y creativo</td>
+<td>Es una interacción agradable y sencilla que facilita el flujo de ideas</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="desafíos-encontrados-y-soluciones-implementadas" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="desafíos-encontrados-y-soluciones-implementadas"><span class="header-section-number">7.4</span> Desafíos Encontrados y Soluciones Implementadas</h2>
+<ol type="1">
+<li><p>Uno de los principales retos durante el desarrollo fue la elección de una plataforma confiable para el acceso a modelos de lenguaje. Se exploraron múltiples alternativas, tanto gratuitas como de pago, pero muchas de ellas presentaban limitaciones importantes: modelos no disponibles temporalmente, incompatibilidades técnicas con otras tecnologías del proyecto, o procesos de autenticación complejos que dificultaban la integración. Esta situación retrasó parcialmente el desarrollo hasta que se identificó una solución estable y flexible que permitiera avanzar sin comprometer la funcionalidad. OpenRouter fue una alternativa gratuita y sencilla de implementar.</p></li>
+<li><p>Otro desafío importante fue controlar el comportamiento del agente generador, especialmente en relación con la longitud de las historias producidas. Inicialmente, el modelo tendía a generar textos muy breves o, por el contrario, excesivamente extensos, lo cual dificultaba mantener un equilibrio entre concisión y riqueza narrativa. Además, en ocasiones omitía detalles clave proporcionados por el usuario. Para abordar este problema, se diseñó un proceso iterativo que guía al modelo con instrucciones claras tanto sobre la extensión esperada como sobre los elementos narrativos que deben preservarse, logrando así historias más completas y alineadas con las expectativas del usuario.</p></li>
+<li><p>El guardado de configuraciones favoritas representó un pequeño reto en cuanto al control de sesión de Streamlit. Corregir esto permitió al equipo de desarrollo tener un mejor entendimiento de la herramienta que podría ser muy útil en trabajos futuros.</p></li>
+</ol>
+</section>
+<section id="posibles-mejoras" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="posibles-mejoras"><span class="header-section-number">7.5</span> Posibles Mejoras</h2>
+<ul>
+<li><strong>Generación de Imágenes</strong>: Integrar APIs como DALL-E o Stable Diffusion para generar ilustraciones basadas en las historias.</li>
+<li><strong>Validación Avanzada</strong>: Implementar reglas más sofisticadas para detectar incoherencias en las entradas (ejemplo: conflictos incompatibles con el género).</li>
+<li><strong>Multilingüismo</strong>: Permitir generar historias en diferentes idiomas utilizando modelos multilingües como mT5 o LLaMA.</li>
+<li><strong>Almacenamiento de Historias</strong>: Implementar una base de datos (SQLite o MongoDB) para guardar historias generadas y permitir a los usuarios recuperarlas.</li>
+<li><strong>Optimización de Rendimiento</strong>: Usar caché para prompts frecuentes y optimizar llamadas a la API para reducir costos y tiempos de respuesta.</li>
+<li><strong>Soporte Offline</strong>: Integrar un modelo local (como LLaMA) para reducir la dependencia de APIs externas.</li>
+</ul>
+</section>
+</section>
+<section id="conclusión" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Conclusión</h1>
+<p>La implementación del <strong>Agente Creativo de Historias con LLMs</strong> es un sistema robusto y funcional que cumple con los requisitos establecidos. La arquitectura modular, el uso de Streamlit para la interfaz, y la integración con la API de OpenRouter permiten generar historias coherentes y personalizadas de manera interactiva. Aunque carece de la funcionalidad opcional de generación de imágenes, el sistema es extensible y puede mejorarse con las sugerencias propuestas. Este proyecto demuestra un uso efectivo de LLMs para aplicaciones creativas, con potencial en educación, entretenimiento y escritura asistida.</p>
+<p>Por otro lado, queda claro que hay un límite a cuánto se puede modificar los prompts para evitar que se den incoherencias en la historia, pues en caso de que el usuario lo desee puede darle especificaciones contradictorias al agente a tal punto que no se pueda crear una historia coherente a partir de estas. La facilidad y rapidez con que estos modelos se acomodan a las instrucciones entregadas puede ahorrar una cantidad de tiempo y esfuerzo incalculable para ciertos trabajos, pero siempre es importante recordar sus limitaciones y que son una herramienta.</p>
+</section>
+<section id="referencias" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Referencias</h1>
+<ul>
+<li>Repositorio: https://github.com/jaco8ar/Trabajo-4-aplicaciones-de-grandes-modelos-de-lenguaje</li>
+<li>Documentación de OpenRouter: https://openrouter.ai/docs</li>
+<li>Documentación de Streamlit: https://docs.streamlit.io</li>
+<li>Gomila, J. G. (2024b, diciembre 17). Dominando la IA Generativa y la ingeniería de LLMs - Recursos. Frogames. https://cursos.frogamesformacion.com/pages/blog/ingenieria-de-llms-recursos</li>
+<li>Large Language Models (LLMs) with Google AI. (s. f.). Google Cloud. https://cloud.google.com/ai/llms</li>
+<li>Azure Microsoft. ¿Qué son los modelos de lenguaje de grandes (LLM). Microsoft. https://azure.microsoft.com/es-es/resources/cloud-computing-dictionary/what-are-large-language-models-llms#Resources</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
