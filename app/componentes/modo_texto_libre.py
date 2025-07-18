@@ -1,6 +1,8 @@
 import streamlit as st
-from creador_de_historias.validator import validar_entrada_libre
+from creador_de_historias.validator import validar_entrada_libre, evaluar_apto_para_edad
 from creador_de_historias.generation import generar_historia, refinar_historia
+from componentes.modo_formulario import guardar_historia_en_PDF
+
 import requests
 
 
@@ -27,6 +29,7 @@ def modo_texto_libre():
 
     manejar_resultado_validacion()
     mostrar_bloque_refinamiento()
+    guardar_historia_en_PDF()
 
 
 def manejar_resultado_validacion():
@@ -61,7 +64,9 @@ def generar_y_mostrar_historia():
     """
     with st.spinner("🪄 Generando historia..."):
         try:
-            historia = generar_historia(st.session_state["descripcion_libre"])
+            prompt = st.session_state["descripcion_libre"] 
+            prompt += "Solo debes decir el titulo de la historia y la historia nada de comentarios extra o entre parentesis."
+            historia = generar_historia(prompt)
 
             if "historia_original" not in st.session_state:
                 st.session_state["historia_original"] = historia
@@ -100,3 +105,6 @@ def mostrar_bloque_refinamiento():
                     st.session_state["historia_generada"] = historia_refinada
                     st.subheader("📖 Historia Refinada")
                     st.write(historia_refinada)
+                    apta, comentario = evaluar_apto_para_edad(st.session_state["historia_generad"], "infantil")
+                    if not apta:
+                        st.warning(f"La historia podría no ser apropiada para niños: {comentario}")

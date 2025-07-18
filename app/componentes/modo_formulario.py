@@ -3,6 +3,7 @@ from creador_de_historias.prompts import construir_prompt
 from creador_de_historias.generation import generar_historia, refinar_historia
 from componentes.formularios_genero import funciones_campos_genero
 from creador_de_historias.validator import evaluar_apto_para_edad
+from creador_de_historias.utils import exportar_a_pdf
 
 dict_conf_inicial = {
         "personaje": "Anaís",
@@ -14,6 +15,8 @@ dict_conf_inicial = {
         "conflicto": "El evento más aleatorio le acaba de suceder a tus hermanos y ahora debes arreglar su desastre",
         "edad": "adolescente",
         "tono": "humorístico",
+        "obstaculos": "Un dinosaurio gigante no te deja llegar a la escuela",
+        "resolucion": "Final feliz",
         "longitud": "mediana",
         "detalles_adicionales": ""
     }
@@ -113,17 +116,40 @@ def modo_formulario():
             try:
                 prompt = construir_prompt(data)
                 historia = generar_historia(prompt, data["longitud"])
-                apta, comentario = evaluar_apto_para_edad(historia, data["edad"])
-                if not apta:
-                    st.warning(f"La historia podría no ser apropiada para {data['rango_edad']}: {comentario}")
-
+                
                 st.session_state["historia_generada"] = historia
                 st.subheader("📖 Historia Generada")
                 st.write(historia)
+                apta, comentario = evaluar_apto_para_edad(st.session_state["historia_generada"], data["edad"])
+                if not apta:
+                    st.warning(f"La historia podría no ser apropiada para {data['rango_edad']}: {comentario}")
+
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
+
     mostrar_bloque_refinamiento()
+    guardar_historia_en_PDF()
+
+
+def guardar_historia_en_PDF():
+    """
+    Crea un archivo PDF con la información usada para construir la historia y la historia.
+    """
+    if st.session_state.get("historia_generada"):
+        historia = st.session_state["historia_generada"]
+        datos = st.session_state.get("historia_datos") or {
+            "descripcion_libre": st.session_state.get("descripcion_libre", "")
+        }
+
+        pdf_buffer = exportar_a_pdf(historia, datos)
+
+        st.download_button(
+            label="📥 Descargar historia en PDF",
+            data=pdf_buffer,
+            file_name="historia_generada.pdf",
+            mime="application/pdf"
+        )
 
 
 def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> dict | None:
@@ -162,6 +188,10 @@ def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> 
                 "🔗 Relaciones importantes", 
                 value=valores_base.get("relacion", "su gato parlante")
             )
+            data["obstaculos"] = st.text_input(
+                "  Obstáculos narrativos", 
+                value=valores_base.get("obstaculos", "Un mal día")
+            )
 
         with col2:
             data["escenario"] = st.text_input(
@@ -182,6 +212,13 @@ def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> 
                 ["infantil", "adolescente", "adulto"],
                 index=["infantil", "adolescente", "adulto"].index(valores_base.get("edad", "infantil"))
             )
+            finales = ["Final feliz", "Felices por siempre", "Inconcluso", "Tragedia", "Amargo"]
+            data["resolucion"] = st.selectbox(
+                "  Tipo de final", 
+                finales,
+                index=finales.index(valores_base.get("resolucion", "Final feliz"))
+            )
+            
             
 
         data["tono"] = st.selectbox("🎵 Tono", ["humorístico", "dramático", "oscuro", "caprichoso"])
@@ -208,7 +245,7 @@ def construir_formulario_principal(genero: str, usar_favorita: bool = False) -> 
             submit = st.form_submit_button("✨ Generar historia")
         
         with col_guardar:
-            guardar_favorita = st.form_submit_button("⭐ Guardar como favorita")
+            guardar_favorita = st.form_submit_button("⭐ Guardar configuración favorita")
         
         # Procesar acciones
         if guardar_favorita:

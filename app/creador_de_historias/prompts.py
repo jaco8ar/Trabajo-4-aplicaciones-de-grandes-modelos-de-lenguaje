@@ -117,8 +117,9 @@ def construir_prompt(data):
     Debe haber cohesión entre el genero, {data['escenario']}y {data['atmósfera']}
     Estructura:
     1. Introducción: Presenta al personaje principal, {data['personaje']}, un(a) {data['rol']} con personalidad {data['personalidad']}, en {data['escenario']} con atmósfera {data['atmósfera']}.
-    2. Desarrollo: El conflicto central está relacionado con {data['conflicto']}. Describe los desafíos.
-    3. Resolución: Explica cómo se resuelve la situación de forma coherente.
+                    Debes prestar atención especial a la relación que tiene con {data["relacion"]}, recuerda bien los nombres de estos personajes.
+    2. Desarrollo: El conflicto central está relacionado con {data['conflicto']}.  {data["personaje"]} debe superar obstáculos como: {data["obstaculos"]}.
+    3. Resolución: Explica cómo se resuelve la situación de forma coherente con un estilo tipo: {data["resolucion"]}.
 
     Debes construir la historia basandote en las siguientes indicaciones para el genero:
 
@@ -127,7 +128,8 @@ def construir_prompt(data):
     Longitud deseada: {LENGTH_MAP[data['longitud']]} palabras.
     Asegúrate de mantener coherencia en la personalidad del personaje y estilo narrativo.
     No incluyas los títulos de Introducción, Desarrollo o Resolución en la historia.
-    Los detalles adicionales {data['detalles_adicionales']} son importantes para la historia pero deben ser coherentes y no deben contradecir la estructura ya existente de la misma.
+    Detalles adicionales que puede que tengas que incluir:
+    {data['detalles_adicionales']} - son importantes para la historia pero deben ser coherentes y no deben contradecir la estructura ya existente de la misma.
     """.strip()
 
     edad_prompt = ""

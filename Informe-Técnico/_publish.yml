@@ -1,0 +1,6 @@
+- source: index.qmd
+  quarto-pub:
+    - id: 323b972a-fe75-45f0-b290-83ccbfbb348e
+      url: https://jochoara.quarto.pub/implementaci�n-del-agente-creativo-de-historias-con-llms
+    - id: 725751d9-043a-4f46-bf37-94696733ec83
+      url: https://jochoara.quarto.pub/implementacion-del-agente-creativo-de-historias-con-llms
