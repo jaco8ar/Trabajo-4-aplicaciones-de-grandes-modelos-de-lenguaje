@@ -177,7 +177,7 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li><strong><code>prompts.py</code></strong> define funciones por género (fantasía, misterio, etc.) que agregan contexto específico a los prompts.</li>
 <li><strong><code>generation.py</code></strong> envía estos prompts al modelo de lenguaje vía OpenRouter y devuelve la historia.</li>
-<li>Controla la longitud deseada (corta, media, larga) adaptando los límites de tokens y ajustando el contenido del prompt cuando es necesario.</li>
+<li>Controla la longitud deseada (corta, media, larga) ajustando el contenido del prompt cuando es necesario para que reestrucutre la historia hasta lograr la longitud de palabras adecuado.</li>
 <li>Permite <strong>refinamiento iterativo</strong>, es decir, generar una nueva versión de la historia a partir de una sugerencia del usuario.</li>
 </ul>
 </section>
@@ -187,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li><strong>Modo Formulario</strong>:
 <ul>
-<li>Presenta campos narrativos generales (personaje, escenario, conflicto) y específicos por género (por ejemplo, “poder mágico” para fantasía).</li>
+<li>Presenta campos narrativos generales (personaje, escenario, conflicto) y específicos por género.</li>
 <li>Guarda la entrada en <code>st.session_state</code> y permite generar o refinar la historia con base en nuevas sugerencias.</li>
 </ul></li>
 <li><strong>Modo Texto Libre</strong>:
@@ -220,6 +220,7 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Construcción iterativa de historias</strong>: permitir al usuario construir y mejorar sus historias puede ser el elemento más crucial del proyecto. Es el componente que permite convertir historias buenas en relatos excelentes.</li>
 <li><strong>Guardado de configuraciones</strong>: es una herramienta muy útil para construir múltiples historias y mantener la posibilidad de volver a aquellas que han impactado más al usuario. Se considera, para trabajos futuros, lograr un mayor nivel de persistencia mediante un sistema de registro de sesión, ya que actualmente está limitado a la sesión activa del navegador.</li>
 <li><strong>Filtro de edad</strong>: se implementó un control en la construcción de la historia a partir del prompt, el cual obtuvo resultados excelentes. Sin embargo, dado que estas historias pueden ser compartidas con un público sensible, se implementó un segundo control que, mediante otro agente LLM, evalúa el contenido de la historia. Esto garantiza que el contenido generado sea siempre apto para el público objetivo.</li>
+<li><strong>Guardado de la historia en PDF</strong>: para proposionarle al usuario una manera de guardar sus historias y a petición de un pequeño grupo de prueba se añadió la opción de descargar la historia definitiva generada junto con la información utilizada para construir la historia.</li>
 </ul>
 </section>
 <section id="capacidades-y-limitaciones-de-llm" class="level2" data-number="7.2">

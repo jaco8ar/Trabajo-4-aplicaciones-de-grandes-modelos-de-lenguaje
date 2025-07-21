@@ -133,7 +133,7 @@ Este componente se encarga de construir prompts y generar texto de manera contro
 
 - **`prompts.py`** define funciones por género (fantasía, misterio, etc.) que agregan contexto específico a los prompts.
 - **`generation.py`** envía estos prompts al modelo de lenguaje vía OpenRouter y devuelve la historia.
-- Controla la longitud deseada (corta, media, larga) adaptando los límites de tokens y ajustando el contenido del prompt cuando es necesario.
+- Controla la longitud deseada (corta, media, larga) ajustando el contenido del prompt cuando es necesario para que reestrucutre la historia hasta lograr la longitud de palabras adecuado.
 - Permite **refinamiento iterativo**, es decir, generar una nueva versión de la historia a partir de una sugerencia del usuario.
 
 ## Interfaz de Usuario (`modo_formulario.py`, `modo_texto_libre.py`, `formularios_genero.py`)
@@ -141,7 +141,7 @@ Este componente se encarga de construir prompts y generar texto de manera contro
 La interfaz está desarrollada en **Streamlit** y ofrece dos modos:
 
 - **Modo Formulario**:
-  - Presenta campos narrativos generales (personaje, escenario, conflicto) y específicos por género (por ejemplo, "poder mágico" para fantasía).
+  - Presenta campos narrativos generales (personaje, escenario, conflicto) y específicos por género.
   - Guarda la entrada en `st.session_state` y permite generar o refinar la historia con base en nuevas sugerencias.
 
 - **Modo Texto Libre**:
@@ -169,6 +169,7 @@ En el transcurso del desarrollo del aplicativo se analizaron una serie de decisi
 - **Construcción iterativa de historias**: permitir al usuario construir y mejorar sus historias puede ser el elemento más crucial del proyecto. Es el componente que permite convertir historias buenas en relatos excelentes.
 - **Guardado de configuraciones**: es una herramienta muy útil para construir múltiples historias y mantener la posibilidad de volver a aquellas que han impactado más al usuario. Se considera, para trabajos futuros, lograr un mayor nivel de persistencia mediante un sistema de registro de sesión, ya que actualmente está limitado a la sesión activa del navegador.
 - **Filtro de edad**: se implementó un control en la construcción de la historia a partir del prompt, el cual obtuvo resultados excelentes. Sin embargo, dado que estas historias pueden ser compartidas con un público sensible, se implementó un segundo control que, mediante otro agente LLM, evalúa el contenido de la historia. Esto garantiza que el contenido generado sea siempre apto para el público objetivo.
+- **Guardado de la historia en PDF**: para proposionarle al usuario una manera de guardar sus historias y a petición de un pequeño grupo de prueba se añadió la opción de descargar la historia definitiva generada junto con la información utilizada para construir la historia.
 
 ## Capacidades y Limitaciones de LLM
 
