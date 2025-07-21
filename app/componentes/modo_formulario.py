@@ -132,15 +132,13 @@ def modo_formulario():
     guardar_historia_en_PDF()
 
 
-def guardar_historia_en_PDF():
+def guardar_historia_en_PDF(modo = "formulario"):
     """
     Crea un archivo PDF con la información usada para construir la historia y la historia.
     """
     if st.session_state.get("historia_generada"):
         historia = st.session_state["historia_generada"]
-        datos = st.session_state.get("historia_datos") or {
-            "descripcion_libre": st.session_state.get("descripcion_libre", "")
-        }
+        datos = st.session_state.get("historia_datos") if modo == "formulario" else {"descripcion_libre": st.session_state.get("descripcion_libre")}
 
         pdf_buffer = exportar_a_pdf(historia, datos)
 

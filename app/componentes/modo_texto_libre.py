@@ -29,7 +29,7 @@ def modo_texto_libre():
 
     manejar_resultado_validacion()
     mostrar_bloque_refinamiento()
-    guardar_historia_en_PDF()
+    guardar_historia_en_PDF(modo = "libre")
 
 
 def manejar_resultado_validacion():
@@ -105,6 +105,6 @@ def mostrar_bloque_refinamiento():
                     st.session_state["historia_generada"] = historia_refinada
                     st.subheader("📖 Historia Refinada")
                     st.write(historia_refinada)
-                    apta, comentario = evaluar_apto_para_edad(st.session_state["historia_generad"], "infantil")
+                    apta, comentario = evaluar_apto_para_edad(st.session_state["historia_generada"], "infantil")
                     if not apta:
                         st.warning(f"La historia podría no ser apropiada para niños: {comentario}")
