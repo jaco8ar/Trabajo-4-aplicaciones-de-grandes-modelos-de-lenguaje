@@ -105,7 +105,7 @@ def exportar_a_pdf(historia: str, datos: dict) -> BytesIO:
         pdf.chapter_body(f"{clave.capitalize()}: {valor}")
 
     pdf.chapter_title("Historia Generada:")
-    pdf.chapter_body(limpiar_unicode(historia))
+    pdf.chapter_body(limpiar_unicode(historia.replace("…", "...")))
 
     buffer = BytesIO()
     buffer.write(pdf.output(dest="S").encode("latin-1"))
