@@ -5,13 +5,6 @@ import streamlit as st
 import requests
 import os
 
-load_dotenv()
-
-CLIENT = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=st.secrets["OPENROUTER_API_KEY"],
-)
-
 MAX_TOKENS = 2000
 MODEL_NAME = "deepseek/deepseek-chat-v3-0324:free"
 
@@ -21,18 +14,63 @@ LENGTH_MAP = {
     "larga": 800
 }
 
+
+load_dotenv()
+
+
+def obtener_cliente_disponible(model=MODEL_NAME) -> OpenAI:
+    """
+    Intenta crear un cliente OpenAI con diferentes claves API hasta encontrar una válida.
+
+    Returns:
+        OpenAI: Cliente funcional configurado con una clave válida.
+
+    Raises:
+        RuntimeError: Si ninguna clave es válida o hay un problema de conexión.
+    """
+    i = 1
+    while True:
+        # api_key = os.getenv(f"OPENROUTER_API_KEY_{i}")
+        api_key=st.secrets[f"OPENROUTER_API_KEY_{i}"]
+
+        if api_key is None:
+            break  # No hay más claves definidas
+        try:
+            client = OpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=api_key,
+            )
+            # Mensaje de prueba
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": "Hola"}],
+                max_tokens=5
+            )
+            print(f"✅ Se encontró una clave válida: OPENROUTER_API_KEY_{i}")
+            st.toast("Estamos listos para seguir construyendo historias juntos", icon = "✅")
+            return client 
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:
+                print(f"🚫 Clave {i} sin créditos disponibles.")
+            else:
+                print(f"❌ Clave {i} inválida. Error HTTP: {e.response.status_code}")
+        except Exception as e:
+            print(f"❌ Error con clave {i}: {e}")
+        i += 1
+
+    raise RuntimeError("No tenemos disponibilidad de agentes ahora mismo, espera unas horas para volverlo a intentar")
+
+try:
+    CLIENT = obtener_cliente_disponible()
+except RuntimeError as e:
+    st.error(str(e))
+    st.stop()
+
+
 def llamar_modelo_chat(messages, temperature=0.8, max_tokens=MAX_TOKENS, top_p=1.0):
     """
     Envía una solicitud al modelo de lenguaje con los mensajes dados y devuelve la respuesta.
-
-    Args:
-        messages (list): Lista de diccionarios con los mensajes de la conversación (roles: 'user', 'system', 'assistant').
-        temperature (float): Nivel de creatividad aleatoria. Valores altos generan salidas más creativas.
-        max_tokens (int): Límite máximo de tokens en la respuesta.
-        top_p (float): Nucleus sampling (para controlar la diversidad).
-
-    Returns:
-        str: Contenido generado por el modelo o un mensaje amigable si ocurre un error.
     """
     try:
         completion = CLIENT.chat.completions.create(
@@ -46,7 +84,7 @@ def llamar_modelo_chat(messages, temperature=0.8, max_tokens=MAX_TOKENS, top_p=1
 
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 429:
-            return "🚨 El modelo está temporalmente saturado. Por favor, intenta nuevamente en unos minutos."
+            return "🚨 Se alcanzó el límite de uso de la clave actual. Porfavor vuelve a cargar la página"
         else:
             return f"❌ Error HTTP: {e.response.status_code}"
 
@@ -57,7 +95,8 @@ def llamar_modelo_chat(messages, temperature=0.8, max_tokens=MAX_TOKENS, top_p=1
         return f"❌ Ocurrió un error inesperado: {e}"
 
 
-def generar_historia(prompt: str, longitud: str = "mediana") -> str:
+
+def generar_historia(prompt: str, longitud: str = "mediana", intentos = 2) -> str:
     """
     Genera una historia basada en un prompt y ajusta su longitud según lo especificado.
 
@@ -75,7 +114,7 @@ def generar_historia(prompt: str, longitud: str = "mediana") -> str:
     palabras = contar_palabras(historia)
 
     intentos = 0
-    while (palabras < min_palabras or palabras > max_palabras) and intentos < 3:
+    while (palabras < min_palabras or palabras > max_palabras) and intentos < intentos:
         razon = "muy corta" if palabras < min_palabras else "muy larga"
         historia = corregir_longitud_historia(historia, prompt, max_palabras, razon)
         palabras = contar_palabras(historia)
