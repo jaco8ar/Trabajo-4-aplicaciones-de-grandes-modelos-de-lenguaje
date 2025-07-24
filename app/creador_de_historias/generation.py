@@ -44,7 +44,7 @@ def obtener_cliente_disponible(model=MODEL_NAME) -> OpenAI:
             response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": "Hola"}],
-                max_tokens=5
+                max_tokens= 10
             )
             print(f"✅ Se encontró una clave válida: OPENROUTER_API_KEY_{i}")
             st.toast("Estamos listos para seguir construyendo historias juntos", icon = "✅")
